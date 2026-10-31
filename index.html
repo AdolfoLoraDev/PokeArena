@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="theme-color" content="#07051a" />
+<title>PokéArena — Aura Showdown (fan game)</title>
+<link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+<div id="app">
+  <canvas id="gl"></canvas>
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div id="team"></div>
+    <div id="bossbar" class="hidden"><div class="bname">MEWTWO</div><div class="bars"><div class="bunder"></div><div class="bfill"></div></div><div class="bcount"></div></div>
+    <div id="wave"></div>
+    <div id="moves"></div>
+    <button id="pauseBtn" aria-label="pause">II</button>
+    <div id="banner"></div>
+    <div id="prompt"></div>
+    <div id="dmg"></div>
+    <div id="reticle"></div>
+  </div>
+  <div id="touch" class="hidden">
+    <div id="stick"><div id="knob"></div></div>
+    <div id="tbtns">
+      <button data-a="atk" class="big">⚔</button>
+      <button data-a="q">Q</button><button data-a="e">E</button><button data-a="r">R</button>
+      <button data-a="dash">➤</button><button data-a="parry">🛡</button><button data-a="lock">◎</button>
+    </div>
+  </div>
+  <!-- Screens -->
+  <div id="title" class="screen">
+    <div class="logo"><span class="l1">POKÉ</span><span class="l2">ARENA</span></div>
+    <div class="tag" data-i="tagline"></div>
+    <nav>
+      <button data-go="play" data-i="play" class="primary"></button>
+      <button data-go="teamScr" data-i="team"></button>
+      <button data-go="optScr" data-i="options"></button>
+      <button data-go="credScr" data-i="credits"></button>
+    </nav>
+    <div class="foot">Fan game · non-commercial · Pokémon © Nintendo / Game Freak / The Pokémon Company</div>
+  </div>
+  <div id="teamScr" class="screen panel hidden"><h2 data-i="team"></h2><div id="teamCards"></div><button data-go="title" data-i="back"></button></div>
+  <div id="optScr" class="screen panel hidden">
+    <h2 data-i="options"></h2>
+    <div class="opts">
+      <label><span data-i="language"></span><span class="seg"><button data-lang="en">English</button><button data-lang="es">Español</button></span></label>
+      <label><span data-i="music"></span><input type="range" id="volMusic" min="0" max="1" step="0.05" /></label>
+      <label><span data-i="sfx"></span><input type="range" id="volSfx" min="0" max="1" step="0.05" /></label>
+      <label><span data-i="quality"></span><span class="seg"><button data-q="high" data-i="high"></button><button data-q="low" data-i="low"></button></span></label>
+      <div class="ctrl"><b data-i="controls"></b><p id="ctrlText"></p></div>
+      <button id="resetBtn" class="danger" data-i="reset"></button>
+    </div>
+    <button data-go="title" data-i="back"></button>
+  </div>
+  <div id="credScr" class="screen panel hidden"><h2 data-i="credits"></h2><div class="scroll"><p data-i="creditsBody"></p><p data-i="spritesBy"></p><ul id="credList"></ul><p data-i="techBy"></p><p><a href="https://sprites.pmdcollab.org/" target="_blank" rel="noopener">sprites.pmdcollab.org</a></p></div><button data-go="title" data-i="back"></button></div>
+  <div id="modal" class="hidden"><div class="mbox"><h2 id="mtitle"></h2><div id="mbody"></div></div></div>
+  <div id="rotate"><div>⟳</div><p data-i="rotate"></p></div>
+  <div id="loading">Loading…</div>
+</div>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

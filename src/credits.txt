@@ -1,0 +1,13 @@
+- Charmander (#0004): sprites CHUNSOFT; portrait CHUNSOFT, Emboarger, baronessfaron
+- Charmeleon (#0005): sprites CHUNSOFT, bwappi, Grimlin; portrait CHUNSOFT, 0palite
+- Charizard (#0006): sprites CHUNSOFT, Emboarger; portrait CHUNSOFT, 0palite
+- Squirtle (#0007): sprites CHUNSOFT; portrait CHUNSOFT
+- Wartortle (#0008): sprites CHUNSOFT; portrait CHUNSOFT, Emmuffin
+- Blastoise (#0009): sprites CHUNSOFT; portrait CHUNSOFT, Emmuffin, Top_Kec
+- Pidgey (#0016): sprites CHUNSOFT, JFain; portrait CHUNSOFT, JFain
+- Rattata (#0019): sprites CHUNSOFT; portrait CHUNSOFT, Frostdrop1
+- Zubat (#0041): sprites CHUNSOFT; portrait CHUNSOFT, fledermaus
+- Machop (#0066): sprites CHUNSOFT, Emboarger; portrait CHUNSOFT, Felis-Licht, Morei
+- Gastly (#0092): sprites CHUNSOFT; portrait CHUNSOFT, JFain
+- Mewtwo (#0150): sprites CHUNSOFT, JFain; portrait CHUNSOFT, baronessfaron
+- Lucario (#0448): sprites CHUNSOFT, Emmuffin; portrait CHUNSOFT, JFain, Emmuffin, MilesFarber, Deeshura, G〜
