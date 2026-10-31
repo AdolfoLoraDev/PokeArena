@@ -16,7 +16,7 @@ async function run(name, ctxOpts, touch) {
   await p.waitForTimeout(900); await p.screenshot({ path: OUT + pre + name + '-gameplay.png' });
   await p.keyboard.press('2'); await p.waitForTimeout(300); await p.keyboard.press('e'); await p.waitForTimeout(700); await p.screenshot({ path: OUT + pre + name + '-swap.png' });
   await p.evaluate(() => { window.__game.kill(); }); await p.waitForTimeout(300);
-  await p.evaluate(() => { window.__game.spawnBoss(); }); await p.waitForTimeout(3500);
+  await p.evaluate(() => { window.__game.spawnBoss(); }); await p.waitForTimeout(5500);
   await p.keyboard.press('Tab'); await p.keyboard.press('q'); await p.waitForTimeout(700); await p.screenshot({ path: OUT + pre + name + '-boss.png' });
   const st = await p.evaluate(() => ({ mode: window.__game.mode, enemies: window.__game.enemies.length, hp: window.__game.team.map((m) => Math.round(m.hp)) }));
   console.log(name, JSON.stringify(st), errs.slice(0, 5));

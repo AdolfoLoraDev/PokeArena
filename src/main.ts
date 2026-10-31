@@ -267,6 +267,7 @@ function updateEnemy(u: Unit, dt: number) {
 function finishUnit(u: Unit, dt: number) {
   for (const o of enemies) if (o !== u) { const d = u.pos.clone().sub(o.pos).setY(0); const l = d.length(), min = 1.1 * (u.def.scale + o.def.scale) / 2; if (l < min && l > 0.001) u.pos.addScaledVector(d.normalize(), (min - l) * 0.5); }
   const r = u.pos.length(); if (r > ARENA_R) u.pos.multiplyScalar(ARENA_R / r);
+  if (u.state !== 'tele') u.bb.group.visible = true;
   u.bb.group.position.copy(u.pos); if (u.boss) u.bb.group.position.y = 0.4 + Math.sin(runTime * 2) * 0.25;
   u.bb.update(dt, camera); if (!u.boss) drawHb(u);
 }
