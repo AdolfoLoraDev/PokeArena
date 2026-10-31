@@ -5,6 +5,9 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { save } from './save';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { HorizontalTiltShiftShader } from 'three/examples/jsm/shaders/HorizontalTiltShiftShader.js';
+import { VerticalTiltShiftShader } from 'three/examples/jsm/shaders/VerticalTiltShiftShader.js';
 
 export const ARENA_R = 21;
 export const canvas = document.getElementById('gl') as HTMLCanvasElement;
@@ -12,7 +15,7 @@ export const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, power
 renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
 export const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x07051a); scene.fog = new THREE.FogExp2(0x07051a, 0.022);
-export const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
+export const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 260);
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 scene.environmentIntensity = 0.35;
@@ -58,31 +61,32 @@ for (let i = 0; i < 26; i++) {
 }
 scene.add(new THREE.HemisphereLight(0x8a7bff, 0x0a0820, 0.7));
 const sun = new THREE.DirectionalLight(0xc0b8ff, 1.3); sun.position.set(-12, 24, 10); sun.castShadow = true;
-sun.shadow.mapSize.set(1024, 1024); Object.assign(sun.shadow.camera, { left: -30, right: 30, top: 30, bottom: -30 }); scene.add(sun, sun.target);
+sun.shadow.mapSize.set(2048, 2048); sun.shadow.radius = 4; sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.03; Object.assign(sun.shadow.camera, { left: -34, right: 34, top: 34, bottom: -34, far: 120 }); scene.add(sun, sun.target);
 const l1 = new THREE.PointLight(0x4fe3ff, 60, 40); l1.position.set(-10, 5, -8); scene.add(l1);
 const l2 = new THREE.PointLight(0xff4fd8, 60, 40); l2.position.set(10, 5, 8); scene.add(l2);
 export const arena = new THREE.Group(); scene.add(arena);
 for (const o of [...scene.children]) if (o !== arena && !(o instanceof THREE.HemisphereLight) && !(o instanceof THREE.DirectionalLight)) arena.add(o);
 export { sun };
-export function setZone(play: boolean) { for (const o of scene.children) if (o instanceof THREE.HemisphereLight) { o.intensity = play ? 1.5 : 0.7; o.color.set(play ? 0xcfe8ff : 0x8a7bff); o.groundColor.set(play ? 0x2a3a20 : 0x0a0820); } arena.visible = !play; (scene.background as THREE.Color).set(play ? 0x0c1a14 : 0x07051a); (scene.fog as THREE.FogExp2).color.set(play ? 0x0c1a14 : 0x07051a); (scene.fog as THREE.FogExp2).density = play ? 0.018 : 0.022; }
-export function followSun(x: number, z: number) { sun.position.set(x - 12, 24, z + 10); sun.target.position.set(x, 0, z); sun.target.updateMatrixWorld(); }
+export function setZone(play: boolean) { sun.color.set(play ? 0xffe2b8 : 0xc0b8ff); sun.intensity = play ? 2.2 : 1.3; renderer.toneMappingExposure = play ? 0.85 : 1.1; if (bloom) { bloom.strength = play ? 0.35 : 0.9; bloom.threshold = play ? 0.92 : 0.86; } if (hts) hts.enabled = vts.enabled = play; for (const o of scene.children) if (o instanceof THREE.HemisphereLight) { o.intensity = play ? 0.9 : 0.7; o.color.set(play ? 0xcfe2ff : 0x8a7bff); o.groundColor.set(play ? 0x6a5a38 : 0x0a0820); } arena.visible = !play; (scene.background as THREE.Color).set(play ? 0xcfe0e0 : 0x07051a); (scene.fog as THREE.FogExp2).color.set(play ? 0xd6e2d6 : 0x07051a); (scene.fog as THREE.FogExp2).density = play ? 0.0065 : 0.022; playerLight.intensity = play ? 0 : 18; scene.environmentIntensity = play ? 0.5 : 0.35; }
+export function followSun(x: number, z: number) { sun.position.set(x - 18, 30, z + 14); sun.target.position.set(x, 0, z); sun.target.updateMatrixWorld(); }
 export const playerLight = new THREE.PointLight(0x6fc3ff, 18, 9); playerLight.position.y = 1.5; scene.add(playerLight);
 
-let composer: EffectComposer | null = null, bloom: UnrealBloomPass;
+let composer: EffectComposer | null = null, bloom: UnrealBloomPass, hts: ShaderPass, vts: ShaderPass;
 export function setupQuality() {
   const high = save.quality === 'high';
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, high ? 1.75 : 1));
-  renderer.shadowMap.enabled = high;
+  renderer.shadowMap.enabled = high; renderer.shadowMap.type = THREE.PCFShadowMap;
   if (high && !composer) {
     composer = new EffectComposer(renderer); composer.addPass(new RenderPass(scene, camera));
-    bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.9, 0.45, 0.86); composer.addPass(bloom); composer.addPass(new OutputPass());
+    bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.9, 0.45, 0.86); composer.addPass(bloom);
+    hts = new ShaderPass(HorizontalTiltShiftShader); vts = new ShaderPass(VerticalTiltShiftShader); hts.uniforms.r.value = vts.uniforms.r.value = 0.5; composer.addPass(hts); composer.addPass(vts); composer.addPass(new OutputPass());
   }
   if (!high) composer = null;
   resize();
 }
 export function resize() {
   const w = window.innerWidth, h = window.innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
-  if (composer) { composer.setPixelRatio(renderer.getPixelRatio()); composer.setSize(w, h); }
+  if (composer) { composer.setPixelRatio(renderer.getPixelRatio()); composer.setSize(w, h); hts.uniforms.h.value = 1.4 / w; vts.uniforms.v.value = 1.4 / h; }
 }
 window.addEventListener('resize', resize);
 export function render(time: number) {

@@ -1,0 +1,4 @@
+Ultimate Stylized Nature Pack by Quaternius — https://quaternius.com/packs/ultimatestylizednature.html
+License: CC0 1.0 Universal (public domain dedication). https://creativecommons.org/publicdomain/zero/1.0/
+Adapted for PokéArena: converted FBX -> GLB, textures downscaled to 256px, bark textures replaced by flat colours.
+Source mirror used: github.com/walterpalladino/godot-quaternius-ultimate-stylized-nature

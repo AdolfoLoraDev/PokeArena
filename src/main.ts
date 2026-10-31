@@ -3,9 +3,9 @@ import { t, applyI18n, setLang, getLang } from './i18n';
 import { TEAM, ENEMIES, WAVES, UPGRADES, ITEMS, BOSS_BARS, xpFor, Move, EnemyDef, Species } from './data';
 import { save, persist, resetSave, MemberSave } from './save';
 import { scene, camera, renderer, setupQuality, render, playerLight, setZone, followSun } from './scene';
-import { world, buildWorld, collide, HALF, reveal, resetFog, drawMinimap, setBeam } from './world';
+import { world, buildWorld, collide, projBlocked, heightAt, reveal, resetFog, drawMinimap, setBeam, updateWorld, openGate, loadWorldAssets } from './world';
 import { Billboard, loadSpecies, portrait } from './sprites';
-import { burst, trail, updateFx, groundRing, slash, flashRing, updateFades, dmgNum, updateNums, clearFx, dotTex } from './fx';
+import { setGroundFn, burst, trail, updateFx, groundRing, slash, flashRing, updateFades, dmgNum, updateNums, clearFx, dotTex } from './fx';
 import { sfx, initAudio, applyVolumes, startMusic } from './audio';
 import CREDITS from './credits.txt?raw';
 
@@ -31,7 +31,7 @@ let active = 0;
 
 // ---------- units ----------
 interface Unit { bb: Billboard; pos: THREE.Vector3; kb: THREE.Vector3; hp: number; max: number; posture: number; maxPosture: number; stagger: number; lastHit: number;
-  def: EnemyDef; state: string; st: number; cd: number; tele: THREE.Mesh | null; burn: number; boss: boolean; bar: number; inv: number; pat: number; lungeDir: THREE.Vector3; hb: THREE.Sprite; camp: number; aggro: boolean; home: THREE.Vector3; }
+  def: EnemyDef; state: string; st: number; cd: number; tele: THREE.Mesh | null; burn: number; boss: boolean; bar: number; inv: number; pat: number; lungeDir: THREE.Vector3; hb: THREE.Sprite; camp: number; aggro: boolean; home: THREE.Vector3; prev: THREE.Vector3; }
 let enemies: Unit[] = [];
 const player = { bb: new Billboard(1), pos: V(0, 0, 6), face: V(0, 0, -1), dashT: 0, dashDir: V(), iframes: 0, dashCd: 0, parryT: 0, parryCd: 0, counterT: 0, swapCd: 0,
   dashMove: null as Move | null, dashHit: new Set<Unit>(), cone: 0, coneMove: null as Move | null, coneT: 0, ccT: 0, ccN: 0, ccMove: null as Move | null };
@@ -136,7 +136,7 @@ function spawnEnemy(key: string, at?: THREE.Vector3, camp = -1) {
   const def = ENEMIES[key]; const bb = new Billboard(def.scale); bb.setSpecies(def.dex, def.scale);
   const a = Math.random() * Math.PI * 2, pos = at ? at.clone() : V(Math.cos(a) * 15, 0, Math.sin(a) * 15);
   const boss = key === 'mewtwo'; const max = boss ? def.hp * 3 : def.hp * (1 + waveIdx * 0.15);
-  const u: Unit = { bb, pos, kb: V(), hp: max, max, posture: 0, maxPosture: def.posture, stagger: 0, lastHit: 0, def, state: 'chase', st: 0, cd: 1 + Math.random(), tele: null, burn: 0, boss, bar: 0, inv: boss ? 1.5 : 0, pat: 0, lungeDir: V(), hb: hbSprite(), camp, aggro: camp < 0, home: pos.clone() };
+  const u: Unit = { bb, pos, kb: V(), hp: max, max, posture: 0, maxPosture: def.posture, stagger: 0, lastHit: 0, def, state: 'chase', st: 0, cd: 1 + Math.random(), tele: null, burn: 0, boss, bar: 0, inv: boss ? 1.5 : 0, pat: 0, lungeDir: V(), hb: hbSprite(), camp, aggro: camp < 0, home: pos.clone(), prev: pos.clone() };
   if (!boss) bb.group.add(u.hb); u.hb.position.y = 1.9 * def.scale;
   scene.add(bb.group); bb.group.position.copy(pos); enemies.push(u); burst(pos.clone().setY(0.5), def.color, 24, 5, 3, 0.7); flashRing(pos, 1.5, def.color);
   return u;
@@ -175,7 +175,8 @@ function killEnemy(u: Unit) {
   team.forEach((m, i) => { if (m.hp <= 0 && i !== active) return; gainXp(i, Math.round(u.def.xp * (i === active ? 1 : 0.5))); });
   if (u.boss) setTimeout(() => endRun(true), 1400);
   if (u.camp >= 0 && !enemies.some((e) => e.camp === u.camp)) { const c = world.camps[u.camp]; c.cleared = true; for (const m of team) if (m.hp > 0) m.hp = Math.min(maxHp(m), m.hp + maxHp(m) * 0.35);
-    const n = campsDone(); if (n === SHRINE_NEED) { banner(t('sealBroken'), '#c06bff', 2.4); sfx.boss(); } else prompt(t('campClear', { n, m: world.camps.length }), 1.6); }
+    const n = campsDone(); if (c.name === 'bigtree' && openGate('shortcut')) setTimeout(() => prompt(t('shortcut'), 2), 1700);
+    if (n === SHRINE_NEED) { openGate('seal'); banner(t('sealBroken'), '#c06bff', 2.4); sfx.boss(); } else prompt(t('campClear', { n, m: world.camps.length }), 1.6); }
 }
 function gainXp(i: number, xp: number) {
   const m = team[i]; m.ms.xp += xp;
@@ -234,7 +235,7 @@ function fireProj(p: THREE.Vector3, dir: THREE.Vector3, spd: number, r: number, 
   const s = new THREE.Sprite(mat); s.scale.setScalar(r * 2.6); scene.add(s); p.y = 1;
   projs.push({ mesh: s, pos: p.clone(), vel: dir.clone().setY(0).normalize().multiplyScalar(spd), r, dmg, posture, mine, life: 2.2, color, burn, homing });
 }
-function addShock(p: THREE.Vector3, max: number, spd: number, dmg: number) { const m = groundRing(0.85, 1, dmg ? 0xff3fd2 : 0xffffff, 0.9, 96); m.position.x = p.x; m.position.z = p.z; shock.push({ mesh: m, r: 0.5, spd, max, dmg, hit: false }); }
+function addShock(p: THREE.Vector3, max: number, spd: number, dmg: number) { const m = groundRing(0.85, 1, dmg ? 0xff3fd2 : 0xffffff, 0.9, 96); m.position.x = p.x; m.position.z = p.z; m.position.y = heightAt(m.position.x, m.position.z) + 0.06; shock.push({ mesh: m, r: 0.5, spd, max, dmg, hit: false }); }
 function swapTo(i: number, forced = false) {
   if (mode !== 'play' || i === active || !team[i] || team[i].hp <= 0 || (!forced && player.swapCd > 0)) return;
   active = i; player.swapCd = 0.8; const m = team[i], s = m.sp.stages[m.stage];
@@ -244,11 +245,11 @@ function swapTo(i: number, forced = false) {
   for (const e of enemies) if (e.pos.distanceTo(player.pos) < 3) damageEnemy(e, 8, 15, player.pos, { kb: 7 });
 }
 function cancelTele(u: Unit) { if (u.tele) { scene.remove(u.tele); u.tele = null; } }
-function teleRing(u: Unit, r: number, at?: THREE.Vector3) { cancelTele(u); u.tele = groundRing(r * 0.9, r, 0xff2a3c, 0.75); u.tele.position.x = (at || u.pos).x; u.tele.position.z = (at || u.pos).z; }
+function teleRing(u: Unit, r: number, at?: THREE.Vector3) { cancelTele(u); u.tele = groundRing(r * 0.9, r, 0xff2a3c, 0.75); u.tele.position.x = (at || u.pos).x; u.tele.position.z = (at || u.pos).z; u.tele.position.y = heightAt(u.tele.position.x, u.tele.position.z) + 0.06; }
 
 // ---------- enemy AI ----------
 function updateEnemy(u: Unit, dt: number) {
-  u.lastHit += dt; if (u.inv > 0) u.inv -= dt;
+  u.prev.copy(u.pos); u.lastHit += dt; if (u.inv > 0) u.inv -= dt;
   if (u.burn > 0) { u.burn -= dt; if (Math.random() < dt * 2) { u.hp -= 3; dmgNum(u.pos, '3'); if (u.hp <= 0) { killEnemy(u); return; } } trail(u.pos.clone().setY(1), 0xff6a1a); }
   if (u.lastHit > 1.5 && u.stagger <= 0) u.posture = Math.max(0, u.posture - dt * u.maxPosture * 0.12);
   u.pos.addScaledVector(u.kb, dt); u.kb.multiplyScalar(Math.pow(0.002, dt));
@@ -263,7 +264,7 @@ function updateEnemy(u: Unit, dt: number) {
     u.bb.setFacing(toP.x, toP.z);
     if (u.cd <= 0 && dist < want + 1.5) { u.state = 'wind'; u.st = u.def.ranged ? 0.7 : 0.6; if (!u.def.ranged) teleRing(u, 1.3); else teleRing(u, 0.9); }
   } else if (u.state === 'wind') {
-    u.st -= dt; u.bb.setFacing(toP.x, toP.z); if (u.tele) { (u.tele.material as THREE.MeshBasicMaterial).color.setHex(u.st < 0.2 ? 0xffffff : 0xff2a3c); u.tele.position.x = u.pos.x; u.tele.position.z = u.pos.z; }
+    u.st -= dt; u.bb.setFacing(toP.x, toP.z); if (u.tele) { (u.tele.material as THREE.MeshBasicMaterial).color.setHex(u.st < 0.2 ? 0xffffff : 0xff2a3c); u.tele.position.x = u.pos.x; u.tele.position.z = u.pos.z; u.tele.position.y = heightAt(u.tele.position.x, u.tele.position.z) + 0.06; }
     if (u.st <= 0) { cancelTele(u); u.bb.play('Attack', true, true);
       if (u.def.ranged) { fireProj(u.pos.clone(), toP, 11, 0.4, u.def.dmg, 0, false, u.def.color); }
       else { u.lungeDir.copy(toP); u.pos.addScaledVector(toP, Math.min(1.2, Math.max(0, dist - 1))); if (u.pos.distanceTo(player.pos) < 1.9) hurtPlayer(u.def.dmg, u.pos, u); sfx.swing(); }
@@ -273,9 +274,9 @@ function updateEnemy(u: Unit, dt: number) {
 }
 function finishUnit(u: Unit, dt: number) {
   for (const o of enemies) if (o !== u) { const d = u.pos.clone().sub(o.pos).setY(0); const l = d.length(), min = 1.1 * (u.def.scale + o.def.scale) / 2; if (l < min && l > 0.001) u.pos.addScaledVector(d.normalize(), (min - l) * 0.5); }
-  collide(u.pos, 0.45 * u.def.scale);
+  collide(u.pos, 0.45 * u.def.scale, u.prev);
   if (u.state !== 'tele') u.bb.group.visible = true;
-  u.bb.group.position.copy(u.pos); if (u.boss) u.bb.group.position.y = 0.4 + Math.sin(runTime * 2) * 0.25;
+  u.bb.group.position.copy(u.pos); u.bb.group.position.y = heightAt(u.pos.x, u.pos.z) + (u.boss ? 0.4 + Math.sin(runTime * 2) * 0.25 : 0);
   u.bb.update(dt, camera); if (!u.boss) drawHb(u);
 }
 function bossAI(u: Unit, dt: number, toP: THREE.Vector3, dist: number) {
@@ -301,7 +302,7 @@ function bossAI(u: Unit, dt: number, toP: THREE.Vector3, dist: number) {
     if (u.st > 0.6 && u.st - dt <= 0.6) { u.bb.play('Attack', true, true); sfx.shoot(); const n = 14; for (let k = 0; k < n; k++) { const a = (k / n) * Math.PI * 2 + runTime; fireProj(u.pos.clone(), V(Math.cos(a), 0, Math.sin(a)), 9, 0.6, u.def.dmg, 0, false, 0x5a2aff); } }
     if (u.st > 1.1) u.state = 'chase';
   } else if (u.state === 'tele') {
-    if (u.tele) { u.tele.position.x = player.pos.x; u.tele.position.z = player.pos.z; (u.tele.material as THREE.MeshBasicMaterial).color.setHex(u.st > 0.7 ? 0xffffff : 0xff2a3c); }
+    if (u.tele) { u.tele.position.x = player.pos.x; u.tele.position.z = player.pos.z; u.tele.position.y = heightAt(u.tele.position.x, u.tele.position.z) + 0.06; (u.tele.material as THREE.MeshBasicMaterial).color.setHex(u.st > 0.7 ? 0xffffff : 0xff2a3c); }
     if (u.st > 0.4 && u.st - dt <= 0.4) { burst(u.pos.clone().setY(1), 0xc06bff, 30, 6, 3, 0.5); u.bb.group.visible = false; }
     if (u.st > 0.9) { const at = u.tele ? V(u.tele.position.x, 0, u.tele.position.z) : player.pos.clone(); cancelTele(u); u.pos.copy(at).add(V(0, 0, -1.6)); u.bb.group.visible = true; u.bb.play('Attack', true, true);
       burst(at.clone().setY(0.5), 0xff3fd2, 50, 10, 4, 0.6); flashRing(at, 3, 0xff3fd2); sfx.heavy(); shake = Math.max(shake, 0.5);
@@ -313,11 +314,12 @@ function bossAI(u: Unit, dt: number, toP: THREE.Vector3, dist: number) {
 }
 
 // ---------- main update ----------
-const camTarget = V(); let menuT = 0;
+const camTarget = V(); const playerPrev = V(); let menuT = 0;
 function updatePlay(dt: number) {
   runTime += dt; const m = team[active]; const st = stats(m);
   for (const mm of team) mm.cds = mm.cds.map((c) => Math.max(0, c - dt));
   player.dashCd -= dt; player.parryCd -= dt; player.iframes -= dt; player.parryT -= dt; player.counterT -= dt; player.swapCd -= dt;
+  playerPrev.copy(player.pos);
   // movement
   const mv = V(); if (keys.has('w') || keys.has('arrowup')) mv.z -= 1; if (keys.has('s') || keys.has('arrowdown')) mv.z += 1; if (keys.has('a') || keys.has('arrowleft')) mv.x -= 1; if (keys.has('d') || keys.has('arrowright')) mv.x += 1;
   if (stickVec.lengthSq() > 0.02) mv.set(stickVec.x, 0, stickVec.y); if (mv.lengthSq() > 1) mv.normalize();
@@ -337,17 +339,18 @@ function updatePlay(dt: number) {
   if (player.dashT > 0) { player.dashT -= dt; const sp = player.dashMove ? 30 : 19; player.pos.addScaledVector(player.dashDir, sp * dt); trail(player.pos.clone().setY(0.8), player.dashMove ? player.dashMove.color : 0x8f6bff); trail(player.pos.clone().setY(1.2), 0xffffff);
     if (player.dashMove) for (const e of [...enemies]) if (!player.dashHit.has(e) && e.pos.distanceTo(player.pos) < 1.6 * e.def.scale) { player.dashHit.add(e); damageEnemy(e, player.dashMove.dmg, player.dashMove.posture, player.pos, { kb: 9 }); sfx.hit(); hitstopFor(0.05); }
   } else { player.pos.addScaledVector(mv, m.sp.speed * st.spd * dt); }
-  collide(player.pos, 0.45);
+  collide(player.pos, 0.45, playerPrev);
+  updateWorld(runTime, dt, camTarget);
   followSun(player.pos.x, player.pos.z); if (Math.floor(runTime * 6) !== Math.floor((runTime - dt) * 6)) { reveal(player.pos); for (const c of world.camps) if (!c.found && c.pos.distanceTo(player.pos) < 20) c.found = true; }
   setBeam(shrineOpen() ? 1 : 0, runTime);
-  if (!bossSpawned && mode === 'play' && player.pos.distanceTo(world.shrine) < 10) { if (shrineOpen()) spawnBoss(); else if (promptTimer <= 0) prompt(t('sealed', { n: SHRINE_NEED - campsDone() }), 1.6); }
+  if (!bossSpawned && mode === 'play' && player.pos.distanceTo(world.shrine) < 13) { if (shrineOpen()) spawnBoss(); else if (false) prompt(t('sealed', { n: SHRINE_NEED - campsDone() }), 1.6); }
   // continuous moves
   if (player.cone > 0) { player.coneT -= dt; if (player.coneT <= 0) { player.coneT = 0.05; player.cone--; const mvv = player.coneMove!; const a = Math.atan2(player.face.z, player.face.x) + (Math.random() - 0.5) * 0.5; fireProj(player.pos.clone().addScaledVector(player.face, 0.8), V(Math.cos(a), 0, Math.sin(a)), 16, 0.5, mvv.dmg, mvv.posture, true, mvv.color, true); if (player.cone % 3 === 0) sfx.shoot(); } }
   if (player.ccN > 0) { player.ccT -= dt; if (player.ccT <= 0) { player.ccT = 0.12; player.ccN--; aoeHit({ ...player.ccMove!, dmg: player.ccMove!.dmg / player.ccMove!.count!, posture: player.ccMove!.posture / player.ccMove!.count! }); hitstopFor(0.04); } }
   // anim
   player.bb.setFacing(player.face.x, player.face.z);
   if (player.bb.anim !== 'Attack' && player.bb.anim !== 'Hurt') player.bb.play(mv.lengthSq() > 0.01 ? 'Walk' : 'Idle');
-  player.bb.group.position.copy(player.pos); player.bb.update(dt, camera); player.bb.mesh.visible = !(player.iframes > 0 && player.dashT <= 0 && Math.floor(runTime * 20) % 2 === 0);
+  player.bb.group.position.copy(player.pos); player.bb.group.position.y = heightAt(player.pos.x, player.pos.z); player.bb.update(dt, camera); player.bb.mesh.visible = !(player.iframes > 0 && player.dashT <= 0 && Math.floor(runTime * 20) % 2 === 0);
   playerLight.position.set(player.pos.x, 1.6, player.pos.z);
   // enemies
   for (const e of [...enemies]) updateEnemy(e, dt);
@@ -355,7 +358,8 @@ function updatePlay(dt: number) {
   for (let i = projs.length - 1; i >= 0; i--) { const p = projs[i]; p.life -= dt;
     if (p.homing && p.mine) { const n = nearestEnemy(p.pos, 8); if (n) { const d = n.pos.clone().sub(p.pos).setY(0).normalize().multiplyScalar(p.vel.length()); p.vel.lerp(d, Math.min(1, dt * 4)); } }
     p.pos.addScaledVector(p.vel, dt); p.mesh.position.copy(p.pos); if (Math.random() < 0.6) trail(p.pos, p.color);
-    let dead = p.life <= 0 || Math.abs(p.pos.x) > HALF || Math.abs(p.pos.z) > HALF;
+    p.mesh.position.y = p.pos.y + heightAt(p.pos.x, p.pos.z); let dead = p.life <= 0 || projBlocked(p.pos);
+    if (dead && p.life > 0) burst(p.pos.clone(), p.color, 8, 4, 2, 0.3);
     if (!dead && p.mine) { for (const e of [...enemies]) if (e.pos.clone().setY(1).distanceTo(p.pos) < p.r + 0.6 * e.def.scale) { damageEnemy(e, p.dmg, p.posture, p.pos, { burn: p.burn }); sfx.hit(); burst(p.pos, p.color, 14, 6, 2, 0.4); dead = p.r < 1; if (dead) break; } }
     else if (!dead && p.pos.clone().setY(0).distanceTo(player.pos) < p.r + 0.5) { const hit = hurtPlayer(p.dmg, p.pos, null, p); if (hit || player.iframes > 0 && !p.mine) dead = hit; }
     if (dead) { scene.remove(p.mesh); projs.splice(i, 1); }
@@ -375,7 +379,7 @@ function updatePlay(dt: number) {
 function updateCamera(dt: number) {
   const portraitish = innerWidth / innerHeight < 1.2;
   if (mode === 'menu') { menuT += dt * 0.15; camera.position.set(Math.sin(Math.sin(menuT) * 0.5) * 16, 6.5, Math.cos(Math.sin(menuT) * 0.5) * 16); camera.lookAt(0, 2.2, 0); }
-  else { const h = isTouch ? 15 : 17, b = isTouch ? 12 : 13.5; camera.position.set(camTarget.x, h * (portraitish ? 1.3 : 1), camTarget.z + b); camera.lookAt(camTarget.x, 0.8, camTarget.z); }
+  else { const h = isTouch ? 17 : 19, b = isTouch ? 9 : 10; camera.position.set(camTarget.x, h * (portraitish ? 1.3 : 1), camTarget.z + b); camera.lookAt(camTarget.x, 0.8, camTarget.z); }
   if (shake > 0) { camera.position.x += (Math.random() - 0.5) * shake; camera.position.y += (Math.random() - 0.5) * shake; shake = Math.max(0, shake - dt * 2.2); }
 }
 
@@ -469,9 +473,9 @@ function frame() {
   if (promptTimer > 0) { promptTimer -= raw; if (promptTimer <= 0) $('#prompt').textContent = ''; }
   render(time);
 }
-async function boot() {
+async function boot() { setGroundFn(heightAt);
   applyI18n(); setLang(getLang()); setupQuality();
-  await Promise.all(['0448', '0150', '0004', '0007'].map(loadSpecies)).catch(() => {});
+  await Promise.all([...['0448', '0150', '0004', '0007'].map(loadSpecies), loadWorldAssets()]).catch((e) => console.warn(e));
   $('#loading').classList.add('hidden'); frame();
   TEAM.flatMap((s) => s.stages.map((x) => x.dex)).concat(Object.values(ENEMIES).map((e) => e.dex)).forEach((d) => loadSpecies(d));
 }

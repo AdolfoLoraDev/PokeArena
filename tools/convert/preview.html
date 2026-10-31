@@ -1,0 +1,9 @@
+<body style="margin:0"><script type="module">
+import * as THREE from 'three'; import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+const r = new THREE.WebGLRenderer({ antialias: true }); r.setSize(1400, 500); document.body.appendChild(r.domElement);
+const s = new THREE.Scene(); s.background = new THREE.Color(0x88aacc); s.add(new THREE.HemisphereLight(0xffffff, 0x445533, 2)); const d = new THREE.DirectionalLight(0xffffff, 2); d.position.set(5, 10, 7); s.add(d);
+const c = new THREE.PerspectiveCamera(40, 2.8, 0.1, 200); c.position.set(30, 8, 26); c.lookAt(30, 3, 0);
+const names = location.hash.slice(1).split(',');
+let x = 0; for (const n of names) { const g = await new GLTFLoader().loadAsync('/public/assets/nature/' + n + '.glb'); g.scene.position.x = x; s.add(g.scene); x += 4; }
+r.render(s, c); window.done = 1;
+</script></body>

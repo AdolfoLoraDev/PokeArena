@@ -1,0 +1,26 @@
+<body style="margin:0"><script type="module">
+import * as THREE from 'three';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
+import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
+const tl = new THREE.TextureLoader(); const texC = {};
+const tex = async (n) => texC[n] ??= await tl.loadAsync(n + '.png').then((t) => { t.colorSpace = THREE.SRGBColorSpace; t.flipY = false; t.name = n; return t; });
+const BARK = { MapleTree_Bark: 0x6b4a33, PineTree_Bark: 0x5a3d2a, BirchTree_Bark: 0xd8d2c4, NormalTree_Bark: 0x5e4532 };
+async function mat(m) { const n = m.name;
+  if (BARK[n]) return new THREE.MeshStandardMaterial({ name: n, color: BARK[n], roughness: 0.9 });
+  const file = n === 'Rock' ? 'Rocks' : n; const t = await tex(file);
+  return new THREE.MeshStandardMaterial({ name: n, map: t, roughness: 0.85, alphaTest: n === 'Rock' ? 0 : 0.5, side: n === 'Rock' ? THREE.FrontSide : THREE.DoubleSide }); }
+window.convert = async (name, rotX) => {
+  const o = await new FBXLoader().loadAsync(name + '.fbx');
+  let mesh; o.traverse((m) => { if (m.isMesh && !mesh) mesh = m; });
+  o.updateMatrixWorld(true); const g = mesh.geometry.clone().applyMatrix4(mesh.matrixWorld); g.scale(0.01, 0.01, 0.01); if (rotX) g.rotateX(-Math.PI / 2);
+  for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(k)) g.deleteAttribute(k);
+  g.computeBoundingBox(); const b = g.boundingBox; g.translate(-(b.min.x + b.max.x) / 2, -b.min.y, -(b.min.z + b.max.z) / 2);
+  // FBX uv flipY: TextureLoader default flips; FBXLoader expects flipY true. keep flipY true for runtime
+  const ms = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+  const mats = await Promise.all(ms.map(mat)); for (const m of mats) if (m.map) m.map.flipY = true;
+  const out = new THREE.Mesh(g, mats.length > 1 ? mats : mats[0]); out.name = name;
+  const res = await new GLTFExporter().parseAsync(out, { binary: true, maxTextureSize: 256 });
+  const bb = new THREE.Box3().setFromObject(out).getSize(new THREE.Vector3());
+  const u = new Uint8Array(res); let s = ""; for (let i = 0; i < u.length; i += 8192) s += String.fromCharCode.apply(null, u.subarray(i, i + 8192)); return { b64: btoa(s), size: bb.toArray() };
+};
+</script></body>

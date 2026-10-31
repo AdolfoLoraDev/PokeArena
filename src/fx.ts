@@ -15,7 +15,7 @@ export function burst(p: THREE.Vector3, color: number, n = 14, spd = 6, up = 2, 
   tmp.setHex(color);
   for (let k = 0; k < n; k++) {
     const i = next; next = (next + 1) % MAX;
-    pos[i * 3] = p.x; pos[i * 3 + 1] = p.y; pos[i * 3 + 2] = p.z;
+    pos[i * 3] = p.x; pos[i * 3 + 1] = p.y + groundY(p.x, p.z); pos[i * 3 + 2] = p.z;
     const a = Math.random() * Math.PI * 2, s = spd * (0.3 + Math.random());
     vel[i * 3] = Math.cos(a) * s; vel[i * 3 + 1] = up * (Math.random() * 2 - 0.3); vel[i * 3 + 2] = Math.sin(a) * s;
     life[i] = maxLife[i] = lifeS * (0.6 + Math.random() * 0.6); base[i * 3] = tmp.r * 1.05; base[i * 3 + 1] = tmp.g * 1.05; base[i * 3 + 2] = tmp.b * 1.05;
@@ -44,7 +44,8 @@ export function slash(p: THREE.Vector3, ang: number, r: number, color: number) {
   const m = new THREE.Mesh(new THREE.RingGeometry(r * 0.55, r, 24, 1, -0.9, 1.8), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9, side: THREE.DoubleSide, depthWrite: false, toneMapped: false, blending: THREE.AdditiveBlending }));
   m.rotation.x = -Math.PI / 2; m.rotation.z = ang; m.position.set(p.x, 0.8, p.z); scene.add(m); fades.push({ m, t: 0.18, d: 0.18, grow: 0.6 });
 }
-export function flashRing(p: THREE.Vector3, r: number, color: number, d = 0.35) { const m = groundRing(r * 0.8, r, color, 0.9); m.position.x = p.x; m.position.z = p.z; fades.push({ m, t: d, d, grow: 1.5 }); }
+export let groundY = (_x: number, _z: number) => 0; export function setGroundFn(f: (x: number, z: number) => number) { groundY = f; }
+export function flashRing(p: THREE.Vector3, r: number, color: number, d = 0.35) { const m = groundRing(r * 0.8, r, color, 0.9); m.position.x = p.x; m.position.z = p.z; m.position.y = groundY(p.x, p.z) + 0.06; fades.push({ m, t: d, d, grow: 1.5 }); }
 export function updateFades(dt: number) {
   for (let i = fades.length - 1; i >= 0; i--) { const f = fades[i]; f.t -= dt; const k = f.t / f.d;
     (f.m.material as THREE.MeshBasicMaterial).opacity = k * 0.9; f.m.scale.multiplyScalar(1 + f.grow * dt);
@@ -55,7 +56,7 @@ const dmgEl = document.getElementById('dmg')!; const nums: { el: HTMLElement; p:
 const v = new THREE.Vector3();
 export function dmgNum(p: THREE.Vector3, text: string, cls = '') {
   const el = document.createElement('span'); el.textContent = text; if (cls) el.className = cls; dmgEl.appendChild(el);
-  nums.push({ el, p: p.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.8, 2.2, 0)), t: 0.8 });
+  nums.push({ el, p: p.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.8, 2.2 + groundY(p.x, p.z), 0)), t: 0.8 });
 }
 export function updateNums(dt: number) {
   for (let i = nums.length - 1; i >= 0; i--) { const n = nums[i]; n.t -= dt; n.p.y += dt * 1.6;
