@@ -13,6 +13,7 @@ const en: Dict = {
   creditsBody: 'PokéArena is a free, non-commercial fan game. Pokémon and all related names are © Nintendo, Game Freak, Creatures Inc. and The Pokémon Company. This project is not affiliated with or endorsed by them.',
   spritesBy: 'Pokémon sprites and portraits from the PMDCollab SpriteCollab project (CC BY-NC 4.0), by:',
   techBy: 'Made with Three.js and Vite. Sound effects synthesized in the browser.',
+  explore: 'Explore · clear camps to break the seal', camps: 'Camps {n}/{m}', campClear: 'Camp cleared {n}/{m}', sealBroken: 'THE SEAL BREAKS — follow the light', sealed: 'Sealed · clear {n} more camps',
   // upgrades
   u_dmg: 'Power +20%', u_hp: 'Max HP +25', u_cd: 'Cooldowns −15%', u_ls: 'Lifesteal +6%', u_pos: 'Posture damage +35%', u_spd: 'Speed +12%',
   // items
@@ -32,6 +33,7 @@ const es: Dict = {
   creditsBody: 'PokéArena es un juego de fans gratuito y sin ánimo de lucro. Pokémon y todos los nombres relacionados son © Nintendo, Game Freak, Creatures Inc. y The Pokémon Company. Este proyecto no está afiliado ni respaldado por ellos.',
   spritesBy: 'Sprites y retratos de Pokémon del proyecto PMDCollab SpriteCollab (CC BY-NC 4.0), por:',
   techBy: 'Hecho con Three.js y Vite. Efectos de sonido sintetizados en el navegador.',
+  explore: 'Explora · limpia campamentos y rompe el sello', camps: 'Campamentos {n}/{m}', campClear: 'Campamento limpio {n}/{m}', sealBroken: 'EL SELLO SE ROMPE — sigue la luz', sealed: 'Sellado · limpia {n} campamentos más',
   u_dmg: 'Poder +20%', u_hp: 'Vida máx. +25', u_cd: 'Recargas −15%', u_ls: 'Robo de vida +6%', u_pos: 'Daño de postura +35%', u_spd: 'Velocidad +12%',
   i_belt: 'Cinturón Negro (+15% daño)', i_claw: 'Garra Rápida (−20% recargas)', i_bell: 'Campana Concha (8% robo de vida)', i_band: 'Cinta Focus (+40 vida máx.)', i_lens: 'Lupa (+50% daño de postura)',
 };

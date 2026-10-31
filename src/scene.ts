@@ -58,9 +58,14 @@ for (let i = 0; i < 26; i++) {
 }
 scene.add(new THREE.HemisphereLight(0x8a7bff, 0x0a0820, 0.7));
 const sun = new THREE.DirectionalLight(0xc0b8ff, 1.3); sun.position.set(-12, 24, 10); sun.castShadow = true;
-sun.shadow.mapSize.set(1024, 1024); Object.assign(sun.shadow.camera, { left: -30, right: 30, top: 30, bottom: -30 }); scene.add(sun);
+sun.shadow.mapSize.set(1024, 1024); Object.assign(sun.shadow.camera, { left: -30, right: 30, top: 30, bottom: -30 }); scene.add(sun, sun.target);
 const l1 = new THREE.PointLight(0x4fe3ff, 60, 40); l1.position.set(-10, 5, -8); scene.add(l1);
 const l2 = new THREE.PointLight(0xff4fd8, 60, 40); l2.position.set(10, 5, 8); scene.add(l2);
+export const arena = new THREE.Group(); scene.add(arena);
+for (const o of [...scene.children]) if (o !== arena && !(o instanceof THREE.HemisphereLight) && !(o instanceof THREE.DirectionalLight)) arena.add(o);
+export { sun };
+export function setZone(play: boolean) { for (const o of scene.children) if (o instanceof THREE.HemisphereLight) { o.intensity = play ? 1.5 : 0.7; o.color.set(play ? 0xcfe8ff : 0x8a7bff); o.groundColor.set(play ? 0x2a3a20 : 0x0a0820); } arena.visible = !play; (scene.background as THREE.Color).set(play ? 0x0c1a14 : 0x07051a); (scene.fog as THREE.FogExp2).color.set(play ? 0x0c1a14 : 0x07051a); (scene.fog as THREE.FogExp2).density = play ? 0.018 : 0.022; }
+export function followSun(x: number, z: number) { sun.position.set(x - 12, 24, z + 10); sun.target.position.set(x, 0, z); sun.target.updateMatrixWorld(); }
 export const playerLight = new THREE.PointLight(0x6fc3ff, 18, 9); playerLight.position.y = 1.5; scene.add(playerLight);
 
 let composer: EffectComposer | null = null, bloom: UnrealBloomPass;
