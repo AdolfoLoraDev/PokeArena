@@ -1,13 +1,151 @@
+- Bulbasaur (#0001): sprites CHUNSOFT; portrait CHUNSOFT
+- Ivysaur (#0002): sprites CHUNSOFT; portrait CHUNSOFT, Emmuffin
+- Venusaur (#0003): sprites CHUNSOFT; portrait CHUNSOFT, <@!276175146304405514>, G〜
 - Charmander (#0004): sprites CHUNSOFT; portrait CHUNSOFT, Emboarger, baronessfaron
-- Charmeleon (#0005): sprites CHUNSOFT, bwappi, Grimlin; portrait CHUNSOFT, 0palite
+- Charmeleon (#0005): sprites CHUNSOFT, <@!199989579682414592>, bwappi, Grimlin; portrait CHUNSOFT, 0palite
 - Charizard (#0006): sprites CHUNSOFT, Emboarger; portrait CHUNSOFT, 0palite
 - Squirtle (#0007): sprites CHUNSOFT; portrait CHUNSOFT
 - Wartortle (#0008): sprites CHUNSOFT; portrait CHUNSOFT, Emmuffin
 - Blastoise (#0009): sprites CHUNSOFT; portrait CHUNSOFT, Emmuffin, Top_Kec
+- Caterpie (#0010): sprites CHUNSOFT; portrait CHUNSOFT, Frostdrop1, baronessfaron
+- Metapod (#0011): sprites CHUNSOFT; portrait CHUNSOFT, Emboarger, baronessfaron, Blanky
+- Butterfree (#0012): sprites CHUNSOFT; portrait CHUNSOFT, Emmuffin
+- Weedle (#0013): sprites CHUNSOFT; portrait CHUNSOFT, Novie
+- Kakuna (#0014): sprites CHUNSOFT; portrait CHUNSOFT, Caitemis
+- Beedrill (#0015): sprites CHUNSOFT; portrait CHUNSOFT, Fable
 - Pidgey (#0016): sprites CHUNSOFT, JFain; portrait CHUNSOFT, JFain
+- Pidgeotto (#0017): sprites CHUNSOFT; portrait CHUNSOFT, Tainted#3886
+- Pidgeot (#0018): sprites CHUNSOFT; portrait CHUNSOFT, FalafelPorpoise
 - Rattata (#0019): sprites CHUNSOFT; portrait CHUNSOFT, Frostdrop1
+- Raticate (#0020): sprites CHUNSOFT; portrait CHUNSOFT, G〜, baronessfaron
+- Spearow (#0021): sprites CHUNSOFT; portrait CHUNSOFT, Blanky, Cloudy
+- Fearow (#0022): sprites CHUNSOFT; portrait CHUNSOFT, Caitemis
+- Ekans (#0023): sprites CHUNSOFT, Emmuffin; portrait CHUNSOFT, drawsstuff, Fearless-Quit, TawnySoup
+- Arbok (#0024): sprites CHUNSOFT; portrait CHUNSOFT, drawsstuff, Noo, Emmuffin
+- Pikachu (#0025): sprites CHUNSOFT; portrait CHUNSOFT
+- Raichu (#0026): sprites CHUNSOFT, Grimlin, Top_Kec; portrait CHUNSOFT, C_Pariah, 3Monika4, G〜
+- Sandshrew (#0027): sprites CHUNSOFT, Emboarger, 3P1C; portrait CHUNSOFT, Vex, ShyStarryRain
+- Sandslash (#0028): sprites CHUNSOFT, Emmuffin, XModxGodX; portrait CHUNSOFT, XModxGodX, Okami
+- Nidoran♀ (#0029): sprites CHUNSOFT; portrait CHUNSOFT, JFain, Fearless-Quit
+- Nidorina (#0030): sprites CHUNSOFT; portrait CHUNSOFT, TawnySoup
+- Nidoqueen (#0031): sprites CHUNSOFT; portrait CHUNSOFT, Emboarger, TawnySoup
+- Nidoran♂ (#0032): sprites CHUNSOFT; portrait CHUNSOFT, JFain
+- Nidorino (#0033): sprites CHUNSOFT; portrait CHUNSOFT, JustAGunk
+- Nidoking (#0034): sprites CHUNSOFT; portrait CHUNSOFT, JFain, Emboarger
+- Clefairy (#0035): sprites CHUNSOFT; portrait CHUNSOFT, estelstarlight
+- Clefable (#0036): sprites CHUNSOFT; portrait CHUNSOFT, jackolanternjackalope, Gust
+- Vulpix (#0037): sprites CHUNSOFT; portrait CHUNSOFT
+- Ninetales (#0038): sprites CHUNSOFT, baronessfaron; portrait CHUNSOFT, baronessfaron
+- Jigglypuff (#0039): sprites CHUNSOFT, JFain; portrait CHUNSOFT, Mojo, Emboarger
+- Wigglytuff (#0040): sprites CHUNSOFT; portrait CHUNSOFT, gromchurch, Emboarger, Gust, Gayschlatt
 - Zubat (#0041): sprites CHUNSOFT; portrait CHUNSOFT, fledermaus
+- Golbat (#0042): sprites CHUNSOFT; portrait CHUNSOFT, JFain
+- Oddish (#0043): sprites CHUNSOFT; portrait CHUNSOFT, Felis-Licht, ShyStarryRain
+- Gloom (#0044): sprites CHUNSOFT; portrait CHUNSOFT, chikorene
+- Vileplume (#0045): sprites CHUNSOFT; portrait CHUNSOFT
+- Paras (#0046): sprites CHUNSOFT; portrait CHUNSOFT, jackolanternjackalope, G〜, bwappi
+- Parasect (#0047): sprites CHUNSOFT; portrait CHUNSOFT
+- Venonat (#0048): sprites CHUNSOFT, anomalocaris; portrait CHUNSOFT, Blanky
+- Venomoth (#0049): sprites CHUNSOFT; portrait CHUNSOFT, skygummi, Mooncaller
+- Diglett (#0050): sprites CHUNSOFT, Audino; portrait CHUNSOFT, Gust, FlowerSnek
+- Dugtrio (#0051): sprites CHUNSOFT, Audino; portrait CHUNSOFT, Gust
+- Meowth (#0052): sprites CHUNSOFT; portrait CHUNSOFT, PhillipsYoung
+- Persian (#0053): sprites CHUNSOFT; portrait CHUNSOFT, baronessfaron, Emmuffin
+- Psyduck (#0054): sprites CHUNSOFT; portrait CHUNSOFT, Felis-Licht, Morei
+- Golduck (#0055): sprites CHUNSOFT; portrait CHUNSOFT, JFain, Caitemis
+- Mankey (#0056): sprites CHUNSOFT; portrait CHUNSOFT, baronessfaron
+- Primeape (#0057): sprites CHUNSOFT; portrait CHUNSOFT
+- Growlithe (#0058): sprites CHUNSOFT, Emmuffin, JustAGunk; portrait CHUNSOFT, Deltex12, LT
+- Arcanine (#0059): sprites CHUNSOFT; portrait CHUNSOFT, baronessfaron
+- Poliwag (#0060): sprites CHUNSOFT; portrait CHUNSOFT, Axcel
+- Poliwhirl (#0061): sprites CHUNSOFT; portrait CHUNSOFT, JFain
+- Poliwrath (#0062): sprites CHUNSOFT; portrait CHUNSOFT, Magu, JustAGunk
+- Abra (#0063): sprites CHUNSOFT, Emmuffin; portrait CHUNSOFT, JFain, cosmosully
+- Kadabra (#0064): sprites CHUNSOFT; portrait CHUNSOFT, 0palite, baronessfaron
+- Alakazam (#0065): sprites CHUNSOFT; portrait CHUNSOFT, Gust
 - Machop (#0066): sprites CHUNSOFT, Emboarger; portrait CHUNSOFT, Felis-Licht, Morei
+- Machoke (#0067): sprites CHUNSOFT; portrait CHUNSOFT, JFain
+- Machamp (#0068): sprites CHUNSOFT; portrait CHUNSOFT
+- Bellsprout (#0069): sprites CHUNSOFT; portrait CHUNSOFT, <@!436940337865293834>, baronessfaron
+- Weepinbell (#0070): sprites CHUNSOFT; portrait CHUNSOFT, G〜
+- Victreebel (#0071): sprites CHUNSOFT; portrait CHUNSOFT
+- Tentacool (#0072): sprites CHUNSOFT; portrait CHUNSOFT, Caitemis, brookriver
+- Tentacruel (#0073): sprites CHUNSOFT; portrait CHUNSOFT
+- Geodude (#0074): sprites CHUNSOFT; portrait CHUNSOFT, JustAGunk
+- Graveler (#0075): sprites CHUNSOFT, Emmuffin; portrait CHUNSOFT, Tainted#3886
+- Golem (#0076): sprites CHUNSOFT, Emmuffin; portrait CHUNSOFT, baronessfaron
+- Ponyta (#0077): sprites CHUNSOFT, JFain; portrait CHUNSOFT, deltaflare, baronessfaron
+- Rapidash (#0078): sprites CHUNSOFT; portrait CHUNSOFT, deltaflare, baronessfaron
+- Slowpoke (#0079): sprites CHUNSOFT; portrait CHUNSOFT, <@!136619914512433152>, Morei
+- Slowbro (#0080): sprites CHUNSOFT; portrait CHUNSOFT, Caitemis
+- Magnemite (#0081): sprites CHUNSOFT; portrait CHUNSOFT, Fearless-Quit, Emboarger
+- Magneton (#0082): sprites CHUNSOFT; portrait CHUNSOFT, SirViolet
+- Farfetch’d (#0083): sprites CHUNSOFT; portrait CHUNSOFT, Noo
+- Doduo (#0084): sprites CHUNSOFT; portrait CHUNSOFT, Ray2064
+- Dodrio (#0085): sprites CHUNSOFT; portrait CHUNSOFT, Top_Kec
+- Seel (#0086): sprites CHUNSOFT; portrait CHUNSOFT, baronessfaron
+- Dewgong (#0087): sprites CHUNSOFT; portrait CHUNSOFT, Blanca
+- Grimer (#0088): sprites CHUNSOFT; portrait CHUNSOFT
+- Muk (#0089): sprites CHUNSOFT; portrait CHUNSOFT
+- Shellder (#0090): sprites CHUNSOFT; portrait CHUNSOFT, Emmuffin
+- Cloyster (#0091): sprites CHUNSOFT; portrait CHUNSOFT
 - Gastly (#0092): sprites CHUNSOFT; portrait CHUNSOFT, JFain
+- Haunter (#0093): sprites CHUNSOFT; portrait CHUNSOFT, PhillipsYoung
+- Gengar (#0094): sprites CHUNSOFT, Emboarger; portrait CHUNSOFT
+- Onix (#0095): sprites CHUNSOFT; portrait CHUNSOFT, baronessfaron
+- Drowzee (#0096): sprites CHUNSOFT; portrait CHUNSOFT, Caitemis, drawsstuff, G〜
+- Hypno (#0097): sprites CHUNSOFT; portrait CHUNSOFT, Caitemis
+- Krabby (#0098): sprites CHUNSOFT; portrait CHUNSOFT, <@!967585139485999154>
+- Kingler (#0099): sprites CHUNSOFT; portrait CHUNSOFT, baronessfaron
+- Voltorb (#0100): sprites CHUNSOFT, Emboarger; portrait CHUNSOFT, JFain
+- Electrode (#0101): sprites CHUNSOFT; portrait CHUNSOFT, PhillipsYoung, G〜
+- Exeggcute (#0102): sprites CHUNSOFT; portrait CHUNSOFT
+- Exeggutor (#0103): sprites CHUNSOFT; portrait CHUNSOFT, bwappi
+- Cubone (#0104): sprites CHUNSOFT, Emmuffin, Sceptile; portrait CHUNSOFT, Felis-Licht, Morei, Emmuffin
+- Marowak (#0105): sprites CHUNSOFT; portrait CHUNSOFT, JFain, Emmuffin
+- Hitmonlee (#0106): sprites CHUNSOFT; portrait CHUNSOFT, Tainted#3886, G〜
+- Hitmonchan (#0107): sprites CHUNSOFT; portrait CHUNSOFT
+- Lickitung (#0108): sprites CHUNSOFT; portrait CHUNSOFT, Shitpost_Sunkern
+- Koffing (#0109): sprites CHUNSOFT; portrait CHUNSOFT, Caitemis
+- Weezing (#0110): sprites CHUNSOFT; portrait CHUNSOFT
+- Rhyhorn (#0111): sprites CHUNSOFT; portrait CHUNSOFT, chikorene
+- Rhydon (#0112): sprites CHUNSOFT; portrait CHUNSOFT, JFain, PhillipsYoung
+- Chansey (#0113): sprites CHUNSOFT; portrait CHUNSOFT, Mojo
+- Tangela (#0114): sprites CHUNSOFT; portrait CHUNSOFT, JFain, Morei
+- Kangaskhan (#0115): sprites CHUNSOFT; portrait CHUNSOFT, Top_Kec
+- Horsea (#0116): sprites CHUNSOFT; portrait CHUNSOFT, frostibirb, Blanky
+- Seadra (#0117): sprites CHUNSOFT; portrait CHUNSOFT
+- Goldeen (#0118): sprites CHUNSOFT; portrait CHUNSOFT, baronessfaron
+- Seaking (#0119): sprites CHUNSOFT; portrait CHUNSOFT
+- Staryu (#0120): sprites CHUNSOFT; portrait CHUNSOFT, JustAGunk
+- Starmie (#0121): sprites CHUNSOFT; portrait CHUNSOFT
+- Mr. Mime (#0122): sprites CHUNSOFT; portrait CHUNSOFT
+- Scyther (#0123): sprites CHUNSOFT; portrait CHUNSOFT, Noo, G〜
+- Jynx (#0124): sprites CHUNSOFT; portrait CHUNSOFT
+- Electabuzz (#0125): sprites CHUNSOFT; portrait CHUNSOFT, Coksi
+- Magmar (#0126): sprites CHUNSOFT; portrait CHUNSOFT, Caitemis
+- Pinsir (#0127): sprites CHUNSOFT; portrait CHUNSOFT
+- Tauros (#0128): sprites CHUNSOFT; portrait CHUNSOFT, Emmuffin
+- Magikarp (#0129): sprites CHUNSOFT; portrait CHUNSOFT, JemDragons
+- Gyarados (#0130): sprites CHUNSOFT; portrait CHUNSOFT, G〜, baronessfaron
+- Lapras (#0131): sprites CHUNSOFT; portrait CHUNSOFT, C_Pariah, silverfox88
+- Ditto (#0132): sprites CHUNSOFT; portrait CHUNSOFT, <@!787048769883602956>
+- Eevee (#0133): sprites CHUNSOFT; portrait CHUNSOFT
+- Vaporeon (#0134): sprites CHUNSOFT; portrait CHUNSOFT, baronessfaron
+- Jolteon (#0135): sprites CHUNSOFT, dmDash; portrait CHUNSOFT, "motherhenna(Helen)", Morei, Vynnyal, baronessfaron, ShyStarryRain
+- Flareon (#0136): sprites CHUNSOFT, Ginnie, JFain; portrait CHUNSOFT, LegendaryPhoenix, baronessfaron, Vynnyal, ShyStarryRain
+- Porygon (#0137): sprites CHUNSOFT; portrait CHUNSOFT, Mojo, Emmuffin
+- Omanyte (#0138): sprites CHUNSOFT; portrait CHUNSOFT, Frostdrop1
+- Omastar (#0139): sprites CHUNSOFT; portrait CHUNSOFT
+- Kabuto (#0140): sprites CHUNSOFT, anomalocaris; portrait CHUNSOFT, Frostdrop1, G〜
+- Kabutops (#0141): sprites CHUNSOFT; portrait CHUNSOFT, G〜
+- Aerodactyl (#0142): sprites CHUNSOFT; portrait CHUNSOFT, Caitemis
+- Snorlax (#0143): sprites CHUNSOFT; portrait CHUNSOFT, NOLASMOR, Emboarger
+- Articuno (#0144): sprites CHUNSOFT; portrait CHUNSOFT
+- Zapdos (#0145): sprites CHUNSOFT; portrait CHUNSOFT
+- Moltres (#0146): sprites CHUNSOFT; portrait CHUNSOFT
+- Dratini (#0147): sprites CHUNSOFT, JFain; portrait CHUNSOFT, frostibirb, Gust
+- Dragonair (#0148): sprites CHUNSOFT; portrait CHUNSOFT, Emmuffin
+- Dragonite (#0149): sprites CHUNSOFT, SethY, Deeshura; portrait CHUNSOFT, "motherhenna(Helen)", Emboarger, AlexGroeger
 - Mewtwo (#0150): sprites CHUNSOFT, JFain; portrait CHUNSOFT, baronessfaron
-- Lucario (#0448): sprites CHUNSOFT, Emmuffin; portrait CHUNSOFT, JFain, Emmuffin, MilesFarber, Deeshura, G〜
+- Mew (#0151): sprites CHUNSOFT, JFain; portrait CHUNSOFT, Mojo, G〜, baronessfaron

@@ -18,18 +18,20 @@
     <div id="wave"></div>
     <canvas id="minimap" width="128" height="128"></canvas>
     <div id="moves"></div>
-    <button id="pauseBtn" aria-label="pause">II</button>
+    <button id="pauseBtn" aria-label="pause">II</button><button id="menuBtn" aria-label="menu">☰</button>
+    <div id="track"></div><div id="toasts"></div><div id="catchHint"></div><button id="talk"></button>
     <div id="banner"></div>
     <div id="prompt"></div>
     <div id="dmg"></div>
     <div id="reticle"></div>
   </div>
   <div id="touch" class="hidden">
+    <div id="aimZone"></div><div id="aimRing"><i></i></div>
     <div id="stick"><div id="knob"></div></div>
     <div id="tbtns">
       <button data-a="atk" class="big">⚔</button>
       <button data-a="q">Q</button><button data-a="e">E</button><button data-a="r">R</button>
-      <button data-a="dash">➤</button><button data-a="parry">🛡</button><button data-a="lock">◎</button>
+      <button data-a="dash">➤</button><button data-a="parry">🛡</button><button data-a="lock">◎</button><button data-a="catch" class="ball"></button>
     </div>
   </div>
   <!-- Screens -->
@@ -39,13 +41,13 @@
     <nav>
       <button data-go="play" data-i="play" class="primary"></button>
       <button data-go="teamScr" data-i="team"></button>
+      <button data-go="dexScr">Pokédex</button>
       <button data-go="optScr" data-i="options"></button>
       <button data-go="credScr" data-i="credits"></button>
     </nav>
     <div class="foot">Fan game · non-commercial · Pokémon © Nintendo / Game Freak / The Pokémon Company</div>
   </div>
-  <div id="teamScr" class="screen panel hidden"><h2 data-i="team"></h2><div id="teamCards"></div><button data-go="title" data-i="back"></button></div>
-  <div id="optScr" class="screen panel hidden">
+    <div id="optScr" class="screen panel hidden">
     <h2 data-i="options"></h2>
     <div class="opts">
       <label><span data-i="language"></span><span class="seg"><button data-lang="en">English</button><button data-lang="es">Español</button></span></label>
@@ -58,8 +60,8 @@
     <button data-go="title" data-i="back"></button>
   </div>
   <div id="credScr" class="screen panel hidden"><h2 data-i="credits"></h2><div class="scroll"><p data-i="creditsBody"></p><p data-i="spritesBy"></p><ul id="credList"></ul><p data-i="assetsBy"></p><p data-i="techBy"></p><p><a href="https://sprites.pmdcollab.org/" target="_blank" rel="noopener">sprites.pmdcollab.org</a></p></div><button data-go="title" data-i="back"></button></div>
+  <div id="panel" class="hidden"><div id="ptabs"></div><div id="pbody" class="scrollable"></div></div>
   <div id="modal" class="hidden"><div class="mbox"><h2 id="mtitle"></h2><div id="mbody"></div></div></div>
-  <div id="rotate"><div>⟳</div><p data-i="rotate"></p></div>
   <div id="loading">Loading…</div>
 </div>
 <script type="module" src="/src/main.ts"></script>

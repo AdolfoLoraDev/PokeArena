@@ -1,5 +1,5 @@
 export type MoveKind = 'melee' | 'proj' | 'aoe' | 'dash' | 'cone';
-export interface Move { id: string; en: string; es: string; kind: MoveKind; dmg: number; cd: number; range: number; color: number; posture: number; speed?: number; radius?: number; count?: number; burn?: boolean; }
+export interface Move { id: string; en: string; es: string; kind: MoveKind; dmg: number; cd: number; range: number; color: number; posture: number; speed?: number; radius?: number; count?: number; burn?: boolean; type?: string; }
 export interface Stage { dex: string; name: string; level: number; scale: number; }
 export interface Species { key: string; stages: Stage[]; hp: number; speed: number; moves: Move[]; color: string; }
 
