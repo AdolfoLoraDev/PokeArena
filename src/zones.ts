@@ -29,7 +29,7 @@ export const ZONES: Zone[] = [
     paths: [[-12, -104, -46, -110, 4], [-66, -122, -76, -128, 3.5], [-98, -126, -106, -120, 3.5], [-90, -148, -96, -152, 3.5], [-114, -158, -124, -152, 3], [-126, -38, -116, -104, 3.5]],
     spawns: [41, 42, 50, 51, 74, 75, 66, 67, 27, 28, 95, 104, 105, 96, 97, 63, 64, 111, 112, 124, 106, 107, 142, 144, 76, 68, 57, 35, 36, 39],
     alpha: { id: 95, lv: 28, at: [-100, -166] },
-    theme: { grass: 0x8a9a7a, grass2: 0xa8b098, hill: 0x6f6a64, path: 0xb0a490, fog: 0xc8d0dc, trees: ['PineTree_4', 'PineTree_2'], density: 0.6, deco: ['Rock_1', 'Rock_3', 'Rock_4', 'Grass_Large'], particle: 0xffffff } },
+    theme: { grass: 0x6a8a55, grass2: 0x88a068, hill: 0x6f6a64, path: 0xb0a490, fog: 0xc8d0dc, trees: ['PineTree_4', 'PineTree_2'], density: 0.6, deco: ['Rock_1', 'Rock_3', 'Rock_4', 'Grass_Large'], particle: 0xffffff } },
   { id: 'volcano', en: 'Cinder Ruins', es: 'Ruinas Ceniza', lv: [26, 40], height: 2.4, way: [58, -120],
     circles: [[58, -120, 12], [88, -146, 13], [68, -176, 12], [36, -200, 13], [0, -224, 18]],
     paths: [[12, -106, 46, -116, 4], [66, -128, 78, -138, 3.5], [82, -158, 74, -166, 3.5], [58, -184, 46, -192, 3.5], [26, -208, 12, -216, 4.5], [140, -34, 96, -134, 3.5]],

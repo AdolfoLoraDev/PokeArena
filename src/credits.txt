@@ -149,3 +149,10 @@
 - Dragonite (#0149): sprites CHUNSOFT, SethY, Deeshura; portrait CHUNSOFT, "motherhenna(Helen)", Emboarger, AlexGroeger
 - Mewtwo (#0150): sprites CHUNSOFT, JFain; portrait CHUNSOFT, baronessfaron
 - Mew (#0151): sprites CHUNSOFT, JFain; portrait CHUNSOFT, Mojo, G〜, baronessfaron
+
+== Additional assets ==
+- KayKit Medieval Hexagon Pack — Kay Lousberg (kaylousberg.com), CC0 1.0
+- Fantasy UI Borders — Kenney (kenney.nl), CC0 1.0 (recoloured)
+- Terrain textures Grass004, Ground037, Ground054, Rock030 — ambientCG.com, CC0 1.0
+- Icons — game-icons.net by Lorc, Delapouite, Skoll, Sbed, Zeromancer, DarkZaitzev, CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/)
+- Fonts — Cinzel, Cinzel Decorative (Natanael Gama), Alegreya Sans (Huerta Tipográfica), SIL Open Font License 1.1

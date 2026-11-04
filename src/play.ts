@@ -1,3 +1,5 @@
+import { zoneTitle } from './ui';
+import { projTrail, hitFx } from './vfx';
 // Per-frame gameplay update: player control, moves, projectiles, world interaction.
 import * as THREE from 'three';
 import { save, persist } from './save';
@@ -49,7 +51,7 @@ export function updatePlay(dt: number) {
   collide(player.pos, 0.45, prevP);
   // world
   const zi = zoneAt(player.pos.x, player.pos.z);
-  if (zi !== G.curZone) { G.curZone = zi; const z = ZONES[zi]; banner(`${L(z.en, z.es)}`, '#dfffe0', 2); toast(`${t('level')} ${z.lv[0]}–${z.lv[1]}`); }
+  if (zi !== G.curZone) { G.curZone = zi; const z = ZONES[zi]; zoneTitle(z); }
   updateWorld(G.runTime, dt, player.pos, zi); followSun(player.pos.x, player.pos.z);
   setGateOpen(gateOpen()); setBeam(gateOpen() && !save.mewtwo ? 1 : 0, G.runTime);
   if (Math.floor(G.runTime * 4) !== Math.floor((G.runTime - dt) * 4)) { reveal(player.pos); waystones(); }
@@ -84,9 +86,9 @@ function updateProjs(dt: number) {
   for (let i = G.projs.length - 1; i >= 0; i--) {
     const p = G.projs[i]; p.life -= dt;
     if (p.homing && p.mine) { const n = nearestEnemy(p.pos, 8); if (n) { const d = n.pos.clone().sub(p.pos).setY(0).normalize().multiplyScalar(p.vel.length()); p.vel.lerp(d, Math.min(1, dt * 4)); } }
-    p.pos.addScaledVector(p.vel, dt); const gy = heightAt(p.pos.x, p.pos.z); p.mesh.position.set(p.pos.x, p.pos.y + gy, p.pos.z); if (Math.random() < 0.6) trail(p.mesh.position, p.color);
+    p.pos.addScaledVector(p.vel, dt); const gy = heightAt(p.pos.x, p.pos.z); p.mesh.position.set(p.pos.x, p.pos.y + gy, p.pos.z); projTrail(p.mesh.position, p.type, p.ult || p.r > 0.6);
     let dead = p.life <= 0 || projBlocked(p.pos);
-    if (dead && p.life > 0) burst(p.mesh.position.clone(), p.color, 8, 4, 2, 0.3);
+    if (dead && p.life > 0) hitFx(p.pos, p.type, 0.6);
     if (!dead && p.mine) { for (const e of [...G.enemies]) if (!e.caught && e.pos.clone().setY(1).distanceTo(p.pos) < p.r + 0.6 * e.def.scale) { damageEnemy(e, p.dmg, p.posture, p.pos, { burn: p.burn, type: p.type, ult: p.ult }); sfx.hit(); burst(p.mesh.position, p.color, 14, 6, 2, 0.4); dead = p.r < 1; if (dead) break; } }
     else if (!dead && !p.mine && p.pos.clone().setY(0).distanceTo(player.pos) < p.r + 0.5) { if (hurtPlayer(p.dmg, p.pos, null, p)) dead = true; }
     if (dead) { scene.remove(p.mesh); G.projs.splice(i, 1); }

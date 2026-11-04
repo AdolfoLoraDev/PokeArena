@@ -13,6 +13,8 @@ import { G, V, L, player, Unit, Proj, Member, stats, maxHp, moveName, hitstopFor
 import { removeUnit, cancelTele, markRespawn, spawnZoneOf } from './spawns';
 import { questEvent, checkPassiveQuests, stoneName } from './npcs';
 import { buildTeamHud, refreshMoveHud } from './hud';
+import { fanfare } from './ui';
+import { levelFx, hitFx, castFx } from './vfx';
 
 const gy = (p: THREE.Vector3, up = 1) => p.clone().setY(heightAt(p.x, p.z) + up);
 export const unlocked = (m: Member, i: number) => m.ms.lv >= LEARN[i];
@@ -28,7 +30,7 @@ export function damageEnemy(u: Unit, dmg: number, posture: number, from: THREE.V
   if (u.stagger <= 0) { u.posture += posture * st.pos; if (u.posture >= u.maxPosture) { u.stagger = u.boss ? 3 : 2.5; u.posture = 0; prompt(t('stagger')); sfx.break(); hitstopFor(0.12); G.shake = Math.max(G.shake, 0.5); burst(gy(u.pos), 0xffd23f, 40, 9, 4, 0.8); cancelTele(u); u.state = 'chase'; } }
   if (o.burn) u.burn = 3;
   u.kb.addScaledVector(u.pos.clone().sub(from).setY(0).normalize(), (o.kb ?? 5) * (u.boss || u.alpha ? 0.3 : 1));
-  dmgNum(u.pos, String(d) + (e >= 2 ? '!' : ''), crit || u.stagger > 0 || e >= 2 ? 'crit' : e < 1 ? 'weak' : ''); burst(gy(u.pos), 0xffffff, 8, 5, 2, 0.3);
+  dmgNum(u.pos, String(d) + (e >= 2 ? '!' : ''), crit || u.stagger > 0 || e >= 2 ? 'crit' : e < 1 ? 'weak' : ''); hitFx(u.pos, o.type, (crit ? 1.7 : 1) * (o.ult ? 1.5 : 1) * (e >= 2 ? 1.3 : 1));
   if (st.ls > 0) healActive(d * st.ls);
   if (u.boss) checkBossPhase(u);
   if (u.hp <= 0) killEnemy(u);
@@ -64,7 +66,7 @@ export function gainXp(i: number, xp: number) {
     LEARN.forEach((l, k) => { if (l === ms.lv) toast(`✦ ${nameOf(ms.id)}: ${moveName(movesOf(ms.id)[k])}`); });
     const ev = evosOf(ms.id).find((e) => e.evo && !e.evo.stone && ms.lv >= e.evo.lv); if (ev && !G.evoQueue.includes(m)) G.evoQueue.push(m);
   }
-  if (up) { sfx.level(); toast(`▲ ${nameOf(ms.id)} ${t('level')} ${ms.lv} · +1 ${L('skill pt', 'pt habilidad')}`); if (i === G.active) flashRing(player.pos, 2.2, 0xffe35a); buildTeamHud(); }
+  if (up) { sfx.level(); if (i === G.active) { fanfare(L('Level Up', 'Subes de nivel'), `${nameOf(ms.id)} · ${t('level')} ${ms.lv} · +1 ${L('skill point', 'punto de habilidad')}`); levelFx(player.pos); flashRing(player.pos, 2.2, 0xffe35a); } else toast(`▲ ${nameOf(ms.id)} ${t('level')} ${ms.lv}`); buildTeamHud(); }
 }
 export function evolveMember(ms: MonSave, to: number) {
   const m = G.team.find((x) => x.ms === ms);
@@ -73,7 +75,7 @@ export function evolveMember(ms: MonSave, to: number) {
 }
 export function doEvolve(ms: MonSave, to: number) {
   const old = nameOf(ms.id); ms.id = to; if (!save.caught.includes(to)) save.caught.push(to); markSeen(to); persist();
-  banner(t('evolve', { a: old, b: nameOf(to) }), '#ffe35a', 2.4); sfx.level();
+  fanfare(L('Evolution', 'Evolución'), `${old} → ${nameOf(to)}`, '#9fe8ff'); sfx.level();
   const m = G.team.find((x) => x.ms === ms);
   if (m) { m.hp = maxHp(m); if (G.team[G.active] === m) { setPlayerSpecies(); burst(gy(player.pos), 0xffffff, 80, 10, 6, 1.2); flashRing(player.pos, 3.5, 0xffffff); } }
   buildTeamHud(); checkPassiveQuests();
@@ -124,7 +126,7 @@ export function useMove(i: number, explicit: boolean) {
   else if (mv.kind === 'cone') { player.cone = mv.count!; player.coneMove = mv; player.coneT = 0; }
 }
 export function aoeHit(mv: Move, ult = false) {
-  sfx.heavy(); flashRing(player.pos, mv.range, mv.color, 0.4); burst(gy(player.pos, 0.6), mv.color, 50, 10, 3, 0.6); G.shake = Math.max(G.shake, 0.3);
+  sfx.heavy(); flashRing(player.pos, mv.range, mv.color, 0.4); castFx(player.pos, mv.type, mv.range, ult); G.shake = Math.max(G.shake, 0.3);
   for (const e of [...G.enemies]) if (e.pos.distanceTo(player.pos) < mv.range + 0.5 * e.def.scale) damageEnemy(e, mv.dmg, mv.posture, player.pos, { burn: mv.burn, kb: 8, type: mv.type, ult });
 }
 const mats = new Map<number, THREE.SpriteMaterial>();

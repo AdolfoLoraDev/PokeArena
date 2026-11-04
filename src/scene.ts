@@ -84,11 +84,15 @@ export function setupQuality() {
   if (!high) composer = null;
   resize();
 }
+let lastW = 0, lastH = 0;
+/** call each frame: catches iOS Safari toolbar / rotation changes that fire no resize event */
+export function checkResize() { const c = renderer.domElement; if (Math.round(c.clientWidth) !== lastW || Math.round(c.clientHeight) !== lastH) resize(); }
 export function resize() {
-  const w = window.innerWidth, h = window.innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  const c = renderer.domElement, w = Math.max(1, Math.round(c.clientWidth || window.innerWidth)), h = Math.max(1, Math.round(c.clientHeight || window.innerHeight)); lastW = w; lastH = h; renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = Math.min(45, 2 * Math.atan(Math.tan(37.5 * Math.PI / 180) / camera.aspect) * 180 / Math.PI); camera.updateProjectionMatrix();
   if (composer) { composer.setPixelRatio(renderer.getPixelRatio()); composer.setSize(w, h); hts.uniforms.h.value = 1.4 / w; vts.uniforms.v.value = 1.4 / h; }
 }
-window.addEventListener('resize', resize);
+window.addEventListener('resize', resize); window.addEventListener('orientationchange', () => setTimeout(resize, 250)); window.visualViewport?.addEventListener('resize', resize);
+if ('ResizeObserver' in window) new ResizeObserver(() => resize()).observe(renderer.domElement);
 export function render(time: number) {
   sig.rotation.z = time * 0.2; sig2.rotation.z = -time * 0.1;
   for (let i = 0; i < pillars.length; i++) { pillars[i].rotation.y = time + i; }

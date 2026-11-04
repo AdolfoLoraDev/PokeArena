@@ -51,8 +51,10 @@ function skillHtml() {
   let h = `<div class="seg">${party.map((m, i) => `<button data-act="sel" data-v="${i}" class="${m === ms ? 'on' : ''}">${nameOf(m.id)}</button>`).join('')}</div>`;
   h += `<p class="sp">${L('Skill points', 'Puntos de habilidad')}: <b>${spFree(ms)}</b> / ${spTotal(ms)} <button data-act="respec" data-v="${ms.uid}">${L('Reset', 'Reiniciar')}</button></p><div class="tree">`;
   for (const b of TREE) {
-    h += `<div class="br" style="--c:${b.color}"><h4>${L(b.en, b.es)}</h4>`;
-    b.nodes.forEach((n, i) => { const r = ms.sk[n.id] || 0; const ok = canLearn(ms, b, i); h += `<button class="node ${r ? 'has' : ''} ${ok ? 'ok' : ''}" ${ok ? `data-act="learn" data-v="${ms.uid}:${b.id}:${i}"` : 'disabled'}>${L(n.en, n.es)}<i>${r}/${n.max}</i></button>`; });
+    const pts = b.nodes.reduce((a, n) => a + (ms.sk[n.id] || 0), 0);
+    h += `<div class="br" style="--c:${b.color}"><h4><span class="bi" style="--ic:url(/icons/${b.id}.svg)"></span>${L(b.en, b.es)}<small>${pts}</small></h4>`;
+    b.nodes.forEach((n, i) => { const r = ms.sk[n.id] || 0; const ok = canLearn(ms, b, i); const full = r >= n.max;
+      h += `<button class="node ${r ? 'has' : ''} ${ok ? 'ok' : ''} ${full ? 'full' : ''}" ${ok ? `data-act="learn" data-v="${ms.uid}:${b.id}:${i}"` : 'disabled'}><span class="ni" style="--ic:url(/icons/${n.id}.svg)"></span><span class="nt"><b>${L(n.en, n.es)}</b><i>${'◆'.repeat(r)}${'◇'.repeat(Math.max(0, n.max - r))} ${r}/${n.max}</i></span></button>`; });
     h += '</div>';
   }
   return h + '</div>';

@@ -7,6 +7,8 @@
 <meta name="theme-color" content="#07051a" />
 <title>PokéArena — Aura Showdown (fan game)</title>
 <link rel="stylesheet" href="/src/style.css" />
+<link rel="stylesheet" href="/src/ui.css" />
+<link rel="stylesheet" href="/src/ui2.css" />
 </head>
 <body>
 <div id="app">
@@ -18,9 +20,9 @@
     <div id="wave"></div>
     <canvas id="minimap" width="128" height="128"></canvas>
     <div id="moves"></div>
-    <button id="pauseBtn" aria-label="pause">II</button><button id="menuBtn" aria-label="menu">☰</button>
+    <button id="pauseBtn" aria-label="pause"></button><button id="menuBtn" aria-label="menu"></button>
     <div id="track"></div><div id="toasts"></div><div id="catchHint"></div><button id="talk"></button>
-    <div id="banner"></div>
+    <div id="banner"></div><div id="zonet"></div><div id="fanfare"></div><div id="flash"></div>
     <div id="prompt"></div>
     <div id="dmg"></div>
     <div id="reticle"></div>
@@ -31,12 +33,12 @@
     <div id="tbtns">
       <button data-a="atk" class="big">⚔</button>
       <button data-a="q">Q</button><button data-a="e">E</button><button data-a="r">R</button>
-      <button data-a="dash">➤</button><button data-a="parry">🛡</button><button data-a="lock">◎</button><button data-a="catch" class="ball"></button>
+      <button data-a="dash" aria-label="dash"></button><button data-a="parry" aria-label="parry"></button><button data-a="lock" aria-label="lock"></button><button data-a="catch" class="ball"></button>
     </div>
   </div>
   <!-- Screens -->
   <div id="title" class="screen">
-    <div class="logo"><span class="l1">POKÉ</span><span class="l2">ARENA</span></div>
+    <div class="logo"><span class="l1">POKÉ</span><span class="l2">ARENA</span><i class="orn"></i></div>
     <div class="tag" data-i="tagline"></div>
     <nav>
       <button data-go="play" data-i="play" class="primary"></button>

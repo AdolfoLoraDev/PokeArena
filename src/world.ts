@@ -2,13 +2,18 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { scene } from './scene';
 import { ZONES, ARENA, SEAL, Zone } from './zones';
+import { terrainMaterial } from './terrain';
+import { buildTown, updateTown, loadTownAssets } from './town';
+import { buildGrass, updateGrass } from './grass';
+import { skyDome, updateSky } from './sky';
+import { buildDecor } from './decor';
 
 // ================= Kanto-style open world: 6 connected handcrafted zones =================
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 export interface Way { id: string; pos: THREE.Vector3; mesh: THREE.Object3D; crystal: THREE.Mesh; }
 interface Gate { x: number; z: number; r: number; open: boolean; mesh: THREE.Object3D | null; }
 export const world = { group: new THREE.Group(), shrine: V(ARENA[0], 0, ARENA[1]), start: V(0, 0, 8), beam: null as THREE.Mesh | null, seal: null as THREE.Mesh | null, gates: [] as Gate[], ways: [] as Way[], built: '' };
-scene.add(world.group); world.group.visible = false;
+scene.add(world.group); world.group.visible = false; scene.add(skyDome);
 export const BX0 = -160, BX1 = 172, BZ0 = -250, BZ1 = 76; // world bounds
 
 // ---- walkable layout: union of all zone circles + capsules ----
@@ -22,6 +27,7 @@ function pathD(x: number, z: number) { let d = 1e9; for (const [ax, az, bx, bz] 
 export function zoneAt(x: number, z: number) { let b = 0, bd = 1e9; for (let i = 0; i < ZONES.length; i++) { const d = zoneSdf(i, x, z); if (d < bd) { bd = d; b = i; } } return b; }
 const ss = (a: number, b: number, x: number) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 /** smooth plateaus: the mountain and the volcano sit higher than the lowlands */
+export { pathD, seaF, LAVA };
 export function heightAt(x: number, z: number) {
   return 3.2 * (1 - ss(40, 80, Math.hypot(x + 96, z + 140))) + 2.4 * (1 - ss(36, 72, Math.hypot(x - 64, z + 158)));
 }
@@ -68,10 +74,11 @@ export function addFade(m: THREE.Material) {
 const NAT = ['MapleTree_1', 'PineTree_2', 'PineTree_4', 'NormalTree_5', 'DeadTree_2', 'DeadTree_6', 'PalmTree_1', 'PalmTree_3', 'Bush_Large', 'Bush_Large_Flowers', 'Bush', 'Flower_3_Clump', 'Flower_4_Clump', 'Grass_Large', 'Rock_1', 'Rock_2', 'Rock_3', 'Rock_4', 'Rock_5'];
 const models: Record<string, THREE.Mesh[]> = {};
 export async function loadWorldAssets() {
-  const l = new GLTFLoader();
+  const l = new GLTFLoader(); const town = loadTownAssets();
   await Promise.all(NAT.map(async (n) => { const g = await l.loadAsync(`/assets/nature/${n}.glb`); models[n] = []; g.scene.updateMatrixWorld(true); g.scene.traverse((o: any) => { if (o.isMesh) { o.geometry.applyMatrix4(o.matrixWorld); models[n].push(o); } }); }));
   for (const n of ['PineTree_2', 'PineTree_4']) for (const mm of models[n]) for (const m of [mm.material].flat() as THREE.MeshStandardMaterial[]) if (m.map) m.color.set(0x8fc070);
   for (const n of NAT) if (!/Grass|Flower|Rock|Bush$/.test(n)) for (const mm of models[n]) for (const m of [mm.material].flat()) addFade(m as THREE.Material);
+  await town;
 }
 
 let seed = 9; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
@@ -90,7 +97,7 @@ const std = (c: number, o: any = {}) => { const m = new THREE.MeshStandardMateri
 function mesh(g: THREE.BufferGeometry, m: THREE.Material, x: number, y: number, z: number, shadow = true) { const o = new THREE.Mesh(g, m); o.position.set(x, y, z); o.castShadow = shadow; o.receiveShadow = true; return o; }
 
 /** terrain height including hills/sea/lava outside the walkable area */
-function groundY(x: number, z: number) {
+export function groundY(x: number, z: number) {
   const d = sdf(x, z), base = heightAt(x, z), n = Math.sin(x * 0.31) * Math.cos(z * 0.27) + Math.sin(x * 0.07 + z * 0.05);
   if (d <= 0) return base;
   const mt = 1 - ss(40, 80, Math.hypot(x + 96, z + 140));
@@ -120,7 +127,7 @@ export function buildWorld(low: boolean) {
   const pos = geo.attributes.position as THREE.BufferAttribute, cols = new Float32Array(pos.count * 3), col = new THREE.Color(), tmp = new THREE.Color();
   const zc = ZONES.map((z) => ({ g: new THREE.Color(z.theme.grass), g2: new THREE.Color(z.theme.grass2), h: new THREE.Color(z.theme.hill), p: new THREE.Color(z.theme.path) }));
   const sand = new THREE.Color(0xe2d29a), stone = new THREE.Color(0xa89f90), arenaC = new THREE.Color(0x8a7f9a), snow = new THREE.Color(0xf2f4f8), ash = new THREE.Color(0x2a2220), lavaRim = new THREE.Color(0x5a2a1a);
-  const ws = new Array(ZONES.length).fill(0);
+  const ws = new Array(ZONES.length).fill(0); const spl = new Float32Array(pos.count * 4);
   for (let i = 0; i < pos.count; i++) { const x = pos.getX(i), z = pos.getZ(i); const d = sdf(x, z), y = groundY(x, z); pos.setY(i, y);
     let wsum = 0; for (let k = 0; k < ZONES.length; k++) { const zd = Math.max(0, zoneSdf(k, x, z) - d); ws[k] = 1 / (1 + zd * zd * 0.02); ws[k] *= ws[k]; wsum += ws[k]; }
     const nz = 0.5 + 0.5 * Math.sin(x * 0.13 + z * 0.11) * Math.cos(z * 0.05); col.setRGB(0, 0, 0);
@@ -131,30 +138,20 @@ export function buildWorld(low: boolean) {
     const sf = seaF(x, z); if (sf > 0 && d > -3) col.lerp(sand, Math.min(1, sf * 1.4) * (d > 6 ? 0.6 : 1));
     if (y > 6.5) col.lerp(snow, Math.min(1, (y - 6.5) / 2));
     for (const [lx, lz, lr] of LAVA) { const ld = Math.hypot(x - lx, z - lz); if (ld < lr + 3) col.lerp(ld < lr + 1 ? lavaRim : ash, 0.7); }
-    tmp.setHSL(0, 0, 0.94 + 0.06 * Math.sin(i * 12.9898)); col.multiply(tmp); cols.set([col.r, col.g, col.b], i * 3); }
-  geo.setAttribute('color', new THREE.BufferAttribute(cols, 3)); geo.computeVertexNormals();
-  const ground = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 })); ground.receiveShadow = true; add(ground);
+    tmp.setHSL(0, 0, 0.94 + 0.06 * Math.sin(i * 12.9898)); col.multiply(tmp); cols.set([col.r, col.g, col.b], i * 3);
+    const zi = zoneAt(x, z); let wd = pd < 2.8 && d < 0 ? Math.min(1, (2.8 - pd) / 1.3) : 0, wsd = sf > 0 ? Math.min(1, sf * 1.5) : 0, wr = d > 2 ? Math.min(0.85, (d - 2) / 9) : 0;
+    if (Math.hypot(x, z - 3) < 9) wd = Math.max(wd, 0.7); if (zi === 5) { wd = Math.max(wd, 0.55); wr = Math.max(wr, 0.35); } if (zi === 4) wr = Math.max(wr, d > 0 ? 0.6 : 0.22);
+    if (Math.hypot(x - ARENA[0], z - ARENA[1]) < 17) wr = 0.8; if (y > 6.5) wr = Math.max(wr, 0.5);
+    const tot = wd + wsd + wr; const kN = tot > 1 ? 1 / tot : 1; spl.set([wd * kN, wsd * kN, wr * kN, 0], i * 4); }
+  geo.setAttribute('color', new THREE.BufferAttribute(cols, 3)); geo.setAttribute('splat', new THREE.BufferAttribute(spl, 4)); geo.computeVertexNormals();
+  const ground = new THREE.Mesh(geo, terrainMaterial()); ground.receiveShadow = true; add(ground);
   // ---- sea + lava ----
   const sea = new THREE.Mesh(new THREE.PlaneGeometry(150, 150), waterMat([0.12, 0.42, 0.62], [0.36, 0.74, 0.86], [0.95, 1, 1], 0.88)); sea.rotation.x = -Math.PI / 2; sea.position.set(BX1 - 60, -0.32, 22); add(sea);
   const lavaM = waterMat([0.7, 0.12, 0.02], [1.0, 0.45, 0.05], [1, 0.9, 0.4], 1); lavaM.toneMapped = false;
   for (const [lx, lz, lr] of LAVA) { const lv = new THREE.Mesh(new THREE.CircleGeometry(lr + 0.8, 28), lavaM); lv.rotation.x = -Math.PI / 2; lv.position.set(lx, heightAt(lx, lz) - 0.35, lz); add(lv); }
 
-  // ---- town hub ----
-  const wall = std(0xeadcc2), roofs = [0xb8553d, 0x3d6fb8, 0xc18f2e, 0x5a8a4a, 0x8a4ab8], woodD = std(0x6b4527), wood = std(0x9a6a3e);
-  const houses: [number, number, number][] = [[-11, 13, 0.3], [10, 14, -0.25], [0, 17.5, 0], [15, -10, -0.7], [-14, -12, 0.6]];
-  houses.forEach(([x, z, ry], i) => { const h = new THREE.Group(); h.position.set(x, 0, z); h.rotation.y = ry;
-    h.add(mesh(new THREE.BoxGeometry(4.2, 2.6, 3.6), wall, 0, 1.3, 0)); const roof = mesh(new THREE.ConeGeometry(3.4, 1.9, 4), std(roofs[i % 5]), 0, 3.55, 0); roof.rotation.y = Math.PI / 4; roof.scale.set(1, 1, 0.85); h.add(roof);
-    h.add(mesh(new THREE.BoxGeometry(0.9, 1.5, 0.1), woodD, 0, 0.75, 1.82)); for (const wx of [-1.3, 1.3]) h.add(mesh(new THREE.BoxGeometry(0.7, 0.7, 0.1), std(0xd8b070, { emissive: 0xa07030, emissiveIntensity: 0.4 }), wx, 1.5, 1.82, false));
-    add(h); addCol(x, z, 2.5); });
-  const fnt = new THREE.Group(); fnt.position.set(0, 0, 3); fnt.add(mesh(new THREE.CylinderGeometry(2.4, 2.6, 0.6, 20), std(0x9a9284), 0, 0.3, 0));
-  fnt.add(mesh(new THREE.CylinderGeometry(2.1, 2.1, 0.1, 20), new THREE.MeshStandardMaterial({ color: 0x4fa0c0, roughness: 0.2 }), 0, 0.58, 0, false));
-  fnt.add(mesh(new THREE.CylinderGeometry(0.3, 0.45, 1.8, 10), std(0x9a9284), 0, 1.2, 0)); add(fnt); addCol(0, 3, 2.6);
-  const wmill = new THREE.Group(); wmill.position.set(-25, 0, 14);
-  wmill.add(mesh(new THREE.CylinderGeometry(1.6, 2.6, 8, 8), wall, 0, 4, 0)); wmill.add(mesh(new THREE.ConeGeometry(2.3, 2.6, 8), std(0xb8553d), 0, 9.3, 0));
-  const blades = new THREE.Group(); blades.position.set(0, 7.2, 2.1); for (let k = 0; k < 4; k++) { const bl = mesh(new THREE.BoxGeometry(0.5, 5.2, 0.08), std(0xe9dcc0), 0, 2.6, 0); const arm = new THREE.Group(); arm.rotation.z = (k * Math.PI) / 2; arm.add(bl); blades.add(arm); }
-  wmill.add(blades); animated.blades = blades; add(wmill);
-  for (let k = 0; k < 8; k++) { const a = (k / 8) * Math.PI * 2 + 0.2; const x = Math.cos(a) * 18.5, z = Math.sin(a) * 18.5; if (sdf(x, z) > -1 || pathD(x, z) < 5) continue;
-    const lamp = new THREE.Group(); lamp.position.set(x, 0, z); lamp.add(mesh(new THREE.CylinderGeometry(0.08, 0.1, 2.6, 6), woodD, 0, 1.3, 0)); lamp.add(mesh(new THREE.SphereGeometry(0.26, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffd27a }), 0, 2.7, 0, false)); add(lamp); addCol(x, z, 0.2); }
+  // ---- town hub (KayKit buildings) ----
+  buildTown(low, add, groundY);
 
   // ---- landmarks per zone ----
   const stoneM = std(0xb7b0a2, { flatShading: true }), mossy = std(0x8d9a78, { flatShading: true }), darkStone = std(0x4a403c, { flatShading: true });
@@ -217,6 +214,7 @@ export function buildWorld(low: boolean) {
     const th = ZONES[zoneAt(x, z)].theme, n = th.deco[Math.floor(rnd() * th.deco.length)]; const rock = n.startsWith('Rock');
     if (rock) { if (d > -2.5 || rnd() < 0.6) continue; const s = 0.8 + rnd(); put(n, x, z, s); addCol(x, z, 0.55 * s); } else put(n, x, z, /Bush_Large/.test(n) ? 0.9 : 1.4 + rnd()); i++; }
   for (const [n, items] of Object.entries(trees)) scatter(n, items, !low && !/Grass|Flower/.test(n));
+  buildGrass(low, add); buildDecor(low, add, groundY);
 
   // ---- ambient particles (per-zone tint) ----
   const mk = (n: number, size: number, color: number, kind: string, blend: boolean) => { const p = new Float32Array(n * 3); for (let i = 0; i < n; i++) p.set([(rnd() - 0.5) * 60, rnd() * 8, (rnd() - 0.5) * 50], i * 3);
@@ -229,7 +227,7 @@ export function setGateOpen(open: boolean) { const g = world.gates[0]; if (!g) r
 export function setWayActive(id: string, on: boolean) { const w = world.ways.find((x) => x.id === id); if (w) (w.crystal.material as THREE.MeshBasicMaterial).color.set(on ? 0x4fe3ff : 0x5a6a7a); }
 let zoneTint = new THREE.Color(0xe8a040); const tmpC = new THREE.Color();
 export function updateWorld(t: number, dt: number, focus: THREE.Vector3, zi: number) {
-  if (animated.blades) animated.blades.rotation.z = t * 0.6; for (const w of animated.water) w.uniforms.t.value = t;
+  updateTown(t); updateGrass(t, focus, zi); updateSky(t, dt, zi); for (const w of animated.water) w.uniforms.t.value = t;
   for (const c of animated.crystals) c.rotation.y = t; for (const w of world.ways) { w.crystal.rotation.y = t * 1.5; w.crystal.position.y = 3 + Math.sin(t * 2) * 0.2; }
   for (const g of world.gates) if (g.open && g.mesh && g.mesh.visible) { g.mesh.position.y -= dt * 3; if (g.mesh.position.y < -6) g.mesh.visible = false; }
   zoneTint.lerp(tmpC.set(ZONES[zi].theme.particle), Math.min(1, dt * 2));

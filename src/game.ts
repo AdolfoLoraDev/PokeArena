@@ -1,3 +1,4 @@
+import { checkResize } from './scene';
 // Game flow: title/starter, start/resume/pause, travel, blackout, camera and main loop.
 import * as THREE from 'three';
 import { t, setLang, getLang, applyI18n } from './i18n';
@@ -7,6 +8,8 @@ import { buildWorld, world, resetFog, loadFog, fogData, reveal, setWayActive, he
 import { ZONES } from './zones';
 import { nameOf, dexStr } from './dex';
 import { sfx, initAudio, startMusic, applyVolumes } from './audio';
+import { updateVfx, castFx, levelFx } from './vfx';
+import { fanfare } from './ui';
 import { updateFx, updateFades, updateNums, clearFx, flashRing } from './fx';
 import { portrait } from './sprites';
 import { G, $, V, L, player, isTouch, maxHp, modal, closeModal, tickText, banner, toast, syncTeam, setTeamChangeHook } from './state';
@@ -88,7 +91,7 @@ export function initUi() {
 function updateCamera(dt: number) {
   const portrait = innerWidth / innerHeight < 1;
   if (G.mode === 'menu') { menuT += dt * 0.12; const r = 22; camera.position.set(Math.sin(menuT) * r, 11, Math.cos(menuT) * r); camera.lookAt(0, 1.5, 0); followSun(0, 0); }
-  else { const h = (isTouch ? 15 : 17) * (portrait ? 1.25 : 1), b = (isTouch ? 9 : 10) * (portrait ? 1.15 : 1); const y = heightAt(G.camTarget.x, G.camTarget.z);
+  else { const h = (isTouch ? 13 : 14) * (portrait ? 1.3 : 1), b = (isTouch ? 12 : 13.5) * (portrait ? 1.1 : 1); const y = heightAt(G.camTarget.x, G.camTarget.z);
     camera.position.set(G.camTarget.x, y + h, G.camTarget.z + b); camera.lookAt(G.camTarget.x, y + 0.8, G.camTarget.z); }
   if (G.shake > 0) { camera.position.x += (Math.random() - 0.5) * G.shake; camera.position.y += (Math.random() - 0.5) * G.shake; G.shake = Math.max(0, G.shake - dt * 2.2); }
 }
@@ -98,10 +101,10 @@ export function frame() {
   const raw = Math.min(clock.getDelta(), 1 / 20); time += raw;
   let dt = raw; if (G.hitstop > 0) { G.hitstop -= raw; dt = raw * 0.05; }
   if (G.mode === 'play') updatePlay(dt); else if (G.mode === 'menu') updateWorld(time, raw, V(0, 0, 0), 0);
-  pressed.clear(); updateFx(dt); updateFades(dt); updateNums(raw); updateCamera(raw); tickText(raw);
+  checkResize(); pressed.clear(); updateFx(dt); updateVfx(dt); updateFades(dt); updateNums(raw); updateCamera(raw); tickText(raw);
   if (G.mode !== 'menu' && G.team.length) updateHud();
   render(time);
 }
 export function buildAll() { buildWorld(save.quality === 'low'); world.group.visible = true; }
-(window as any).__game = { G, player, world, save, ZONES, travel, startGame, tp: (x: number, z: number) => player.pos.set(x, 0, z),
+(window as any).__game = { camera, G, player, world, save, ZONES, travel, startGame, fanfare, castFx, levelFx, tp: (x: number, z: number) => player.pos.set(x, 0, z),
   kill: () => [...G.enemies].forEach((e) => damageEnemy(e, 99999, 0, player.pos)), openPanel, addMon: (id: number, lv: number) => { addMon(id, lv); syncTeam(); } };
